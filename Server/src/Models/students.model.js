@@ -19,6 +19,9 @@ const userSchema = new Schema({
         type: String,
         enum : ['FE', 'SE', 'TE', 'BE']
     },
+    class:{
+        type: String,
+    },
     email: {
     type: String,
     required: true,
@@ -39,6 +42,12 @@ const userSchema = new Schema({
         required: true,
         enum: ['student', 'teacher', 'admin'],
         default: 'student'
+    },
+    createdAt: {
+     type: Date, default: Date.now
+     },
+  updatedAt: {
+     type: Date, default: Date.now 
     }
 
 
