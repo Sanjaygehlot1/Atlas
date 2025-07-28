@@ -53,6 +53,7 @@ const loginUser = AsyncHandler(async (req, res) => {
         .json(new ApiResponse(200, { user: loggedInUser, accessToken }, "User logged in successfully"));
 });
 
+// --- 3. Logout User ---
 const logoutUser = AsyncHandler(async (req, res) => {
     return res
         .status(200)
