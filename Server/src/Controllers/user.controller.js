@@ -2,11 +2,16 @@ import { AsyncHandler } from "../Utils/AsyncHandler.js";
 import { ApiError } from "../Utils/ApiError.js";
 import { ApiResponse } from "../Utils/ApiResponse.js";
 import User from "../Models/students.model.js";
+import { sendVerificationEmail } from "../Utils/sendEmail.js";
 
 const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
 };
+
+import crypto from 'crypto';
+
+
 
 const registerUser = AsyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -20,16 +25,74 @@ const registerUser = AsyncHandler(async (req, res) => {
     }
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-        throw new ApiError(409, "User with this email already exists");
+
+    if (existingUser && existingUser.isVerified) {
+        throw new ApiError(409, "A verified account with this email already exists.");
     }
 
-    const user = await User.create({ name, email, password });
+    const verificationCode = crypto.randomInt(100000, 999999).toString();
+    const verificationCodeExpiry = new Date(Date.now() + 10 * 60 * 1000); 
+
+    let user;
+    if (existingUser) {
+        user = existingUser;
+        user.name = name;
+        user.password = password;
+        user.verificationCode = verificationCode;
+        user.verificationCodeExpiry = verificationCodeExpiry;
+    } else {
+        user = new User({
+            name,
+            email,
+            password, 
+            verificationCode,
+            verificationCodeExpiry,
+        });
+    }
+
+    await user.save();
+
+
+   const sendMail=  await sendVerificationEmail(email, name, verificationCode);
+
+   if(sendMail.rejected.length > 0) {
+        throw new ApiError(500, "Failed to send verification email. Please try again later.");
+    }
 
     return res.status(201).json(
-        new ApiResponse(201, { userId: user._id , userdata: user}, "User registered successfully. Please log in.")
+        new ApiResponse(201, { email: user.email }, "Verification code sent successfully. Please check your email.")
     );
 });
+
+const verifyUser = AsyncHandler(async (req, res) => {
+    const { code, email } = req.body;
+    console.log('Verification Code:', code, 'Email:', email);
+    if (!code || !email) {
+        throw new ApiError(400, "Code and email are required");
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (user.isVerified) {
+        throw new ApiError(400, "User is already verified");
+    }
+    if (user.verificationCodeExpiry < new Date()) {
+        throw new ApiError(400, "Verification code has expired");
+    }
+    if (user.verificationCode !== code) {
+        throw new ApiError(400, "Invalid verification code");
+    }
+    user.isVerified = true;
+    user.verificationCode = undefined; 
+    user.verificationCodeExpiry = undefined; 
+    await user.save();
+    return res.status(200).json(new ApiResponse(200, { email: user.email }, "User verified successfully"));
+
+})
+
+
 
 const loginUser = AsyncHandler(async (req, res) => {
     const { email, password } = req.body;
@@ -89,4 +152,11 @@ const getCurrentUser = AsyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, req.user, "User details fetched successfully."));
 });
 
-export { registerUser, loginUser, logoutUser, updateAcademicInfo, getCurrentUser };
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    updateAcademicInfo,
+    getCurrentUser,
+    verifyUser
+};

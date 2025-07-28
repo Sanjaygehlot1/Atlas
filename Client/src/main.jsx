@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import RegisterPage from './Components/register.jsx'
 import LoginPage from './Components/login.jsx'
+import TimetableUploadForm from './Pages/Teacher/uploadTimtable.jsx'
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
       {
         element: <LoginPage/>,
         path: '/login',
+      },
+      {
+        element: <TimetableUploadForm/>,
+        path: '/teacher/upload-timetable',
       }
     ]
   }

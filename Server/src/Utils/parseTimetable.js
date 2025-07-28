@@ -18,7 +18,6 @@ export default async function parseYearlyTimetableExcel(filePath) {
 
   const allRecords = [];
 
-  // Find the header row to map column indexes to time slots
   const headerIndex = data.findIndex(row => row && row.some(cell => typeof cell === 'string' && cell.toUpperCase().includes('CLASS')));
   if (headerIndex === -1) {
     throw new Error("Could not find a header row containing 'Class'.");
@@ -26,16 +25,14 @@ export default async function parseYearlyTimetableExcel(filePath) {
   const headerRow = data[headerIndex];
   const timeSlotMap = {};
   headerRow.forEach((cell, index) => {
-    if (index > 1 && cell) { // Assuming time slots start after 'Day' and 'Class'
+    if (index > 1 && cell) { 
       timeSlotMap[index] = cell.trim();
     }
   });
 
-  // Iterate through all data rows to find timetable entries
   for (let i = headerIndex + 1; i < data.length; i++) {
     const row = data[i];
 
-    // A valid row must have a Day and a Class defined
     if (row && row[0] && row[1]) {
       const day = row[0].trim();
       const classId = row[1].trim();

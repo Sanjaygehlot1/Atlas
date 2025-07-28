@@ -22,6 +22,7 @@
     "mongoose": "^8.16.4",
     "mongoose-aggregate-paginate-v2": "^1.1.4",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.5",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.3.93",

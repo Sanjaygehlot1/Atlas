@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 const userSchema = new Schema({
     name: {
         type: String,
-        required: true,
         trim: true
 
     },
@@ -42,10 +41,19 @@ const userSchema = new Schema({
         enum: ['student', 'teacher', 'admin'],
         default: 'student'
     },
-    // A flag to check if the user has filled in their academic details.
     hasFilledDetails: {
         type: Boolean,
         default: false
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationCode: {
+        type: String
+    },
+    verificationCodeExpiry: {
+        type: Date
     }
 }, { timestamps: true });
 

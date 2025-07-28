@@ -41,10 +41,10 @@ export async function handleTimetableUpload(req, res) {
       ...rec,
       hash: generateRecordHash(rec),
     }));
-    
+
     const newHashes = newRecordsWithHashes.map(rec => rec.hash);
     const yearRegex = new RegExp(`^${year}`);
-    
+
     const totalOldRecords = await Timetable.countDocuments({ class: { $regex: yearRegex } });
     const existingHashesCount = await Timetable.countDocuments({
       entryHash: { $in: newHashes },
@@ -61,30 +61,34 @@ export async function handleTimetableUpload(req, res) {
 
     console.log(`Changes detected for year ${year}. Updating the database...`);
     const recordsToSave = await Promise.all(
-        newRecordsWithHashes.map(async (record) => {
-          const yearDoc = await Year.findOneAndUpdate({ name: record.class }, { $setOnInsert: { name: record.class, year: year, division: 'TBD', department: 'TBD' } }, { upsert: true, new: true });
-          const timeSlotDoc = await TimeSlot.findOneAndUpdate({ label: record.timeSlot }, { $setOnInsert: { label: record.timeSlot, startTime: '00:00', endTime: '00:00' } }, { upsert: true, new: true });
-          const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT' } }, { upsert: true, new: true });
-          const roomDoc = await Room.findOneAndUpdate({ roomCode: record.room }, { $setOnInsert: { roomCode: record.room, floor: 'TBD' } }, { upsert: true, new: true });
-          
-          return {
-            year: yearDoc._id,
-            day: record.day,
-            timeSlot: timeSlotDoc._id,
-            subjectName: record.subjectName,
-            lectureType: record.lectureType,
-            faculty: [facultyDoc._id],
-            rooms: [roomDoc._id],
-            class: record.class,
-            entryHash: record.hash,
-          };
-        })
-      );
-  
-      await mongoose.connection.transaction(async (session) => {
-        await Timetable.deleteMany({ class: { $regex: yearRegex } }, { session });
-        await Timetable.insertMany(recordsToSave, { session });
-      });
+      newRecordsWithHashes.map(async (record) => {
+
+        const yearDoc = await Year.findOneAndUpdate({ name: record.class }, { $setOnInsert: { name: record.class, year: year, division: 'TBD', department: 'TBD' } }, { upsert: true, new: true });
+        
+        const timeSlotDoc = await TimeSlot.findOneAndUpdate({ label: record.timeSlot }, { $setOnInsert: { label: record.timeSlot, startTime: '00:00', endTime: '00:00' } }, { upsert: true, new: true });
+        
+        const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT' } }, { upsert: true, new: true });
+        
+        const roomDoc = await Room.findOneAndUpdate({ roomCode: record.room }, { $setOnInsert: { roomCode: record.room, floor: 'TBD' } }, { upsert: true, new: true });
+
+        return {
+          year: yearDoc._id,
+          day: record.day,
+          timeSlot: timeSlotDoc._id,
+          subjectName: record.subjectName,
+          lectureType: record.lectureType,
+          faculty: [facultyDoc._id],
+          rooms: [roomDoc._id],
+          class: record.class,
+          entryHash: record.hash,
+        };
+      })
+    );
+
+    await mongoose.connection.transaction(async (session) => {
+      await Timetable.deleteMany({ class: { $regex: yearRegex } }, { session });
+      await Timetable.insertMany(recordsToSave, { session });
+    });
 
     console.log(`Database updated successfully for year ${year}.`);
     return res.status(200).json({
