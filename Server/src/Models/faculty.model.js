@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
+import {mongoose,Schema} from 'mongoose';
 
-const facultySchema = new mongoose.Schema({
-  code: { type: String, required: true, unique: true }, // e.g., "SK"
-  name: { type: String, required: true },               // Full name
-  department: { type: String, required: true },         // e.g., "INFT"
+const facultySchema = new Schema({
+  code: { type: String, required: true, unique: true }, 
+  name: { type: String, required: true },               
+  department: { type: String, required: true },         
 });
 
-module.exports = mongoose.model('Faculty', facultySchema);
+const Faculty = mongoose.model('Faculty', facultySchema);
+export default Faculty;

@@ -1,4 +1,6 @@
-import {mongoose,Schema} from 'mongoose';
+import { mongoose, Schema } from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new Schema({
     name: {
@@ -7,35 +9,32 @@ const userSchema = new Schema({
         trim: true
 
     },
-    rollNo:{
-        type: String,
-             
+    rollNo: {
+        type: String
     },
-    department:{
+    department: {
         type: String,
-        enum : ['CMPN', 'ECS', 'EXTC', 'INFT']
+        enum: ['CMPN', 'ECS', 'EXTC', 'INFT']
     },
-    year:{
+    year: {
         type: String,
-        enum : ['FE', 'SE', 'TE', 'BE']
+        enum: ['FE', 'SE', 'TE', 'BE']
     },
-    class:{
-        type: String,
+    class: {
+        type: String
     },
     email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^[a-zA-Z0-9._%+-]+@atharvacoe\\.ac\\.in$/, 'Only college emails are allowed.']
-    },
-
-    password:{
         type: String,
         required: true,
-        minlength: 6,
-        maxlength: 15
+        unique: true,
+        trim: true,
+        lowercase: true,
+        match: [/^[a-zA-Z0-9._%+-]+@atharvacoe\.ac\.in$/, 'Only college emails are allowed.']
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6
     },
     role: {
         type: String,
@@ -43,15 +42,31 @@ const userSchema = new Schema({
         enum: ['student', 'teacher', 'admin'],
         default: 'student'
     },
-    createdAt: {
-     type: Date, default: Date.now
-     },
-  updatedAt: {
-     type: Date, default: Date.now 
+    // A flag to check if the user has filled in their academic details.
+    hasFilledDetails: {
+        type: Boolean,
+        default: false
     }
+}, { timestamps: true });
 
 
-})
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
 
-const User = mongoose.model('User', studentSchema);
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateAccessToken = function () {
+    return jwt.sign(
+        { _id: this._id },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    );
+};
+
+const User = mongoose.model('User', userSchema);
 export default User;
