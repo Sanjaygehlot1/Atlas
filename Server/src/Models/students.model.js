@@ -22,6 +22,18 @@ const userSchema = new Schema({
     class: {
         type: String
     },
+    dob: {
+        type: String
+    },
+    gender:{
+        type: String,
+        enum: ["male", "female","other"]
+    },
+    phone: {
+        type: String,
+        required: true,
+        match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number.']
+    },
     email: {
         type: String,
         required: true,

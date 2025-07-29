@@ -105,8 +105,10 @@ const {user} = useAuth();
   };
 
  useEffect(() => {
-    if (user) {
-      navigate('/teacher/upload-timetable');
+    if (!user.hasFilledDetails) {
+      navigate('/student/academic-info');
+    }else{
+      navigate('/student/dashboard')
     }
   }, [user, navigate]);
 

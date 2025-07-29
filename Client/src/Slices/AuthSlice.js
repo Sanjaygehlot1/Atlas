@@ -40,12 +40,25 @@ const loginUser = async (credentials) => {
     }
 };
 
+const updateAcademicInfo = async (data) => {
+    try {
+        console.log(data)
+        const response = await AxiosInstance.put('/users/update-academic-info', data);
+        return response.data;
+    } catch (error) {
+        throw new ApiError(
+            error.response?.status || 500,
+            error.response?.data?.message || 'An error occurred while logging the user.')
+    }
+};
+
 
 
 
 export {
     createUserAccount,
     verifyUserwithCode,
-    loginUser
+    loginUser,
+    updateAcademicInfo
 };
 

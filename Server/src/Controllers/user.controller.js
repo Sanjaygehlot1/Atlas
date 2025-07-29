@@ -125,11 +125,16 @@ const logoutUser = AsyncHandler(async (req, res) => {
 });
 
 const updateAcademicInfo = AsyncHandler(async (req, res) => {
-    const { year, department, rollNo, studentClass } = req.body;
-    if (!year || !department || !rollNo || !studentClass) {
+    const { year, department, rollNo, studentClass, dob, gender,contactNumber } = req.body;
+    if (!year || !department || !rollNo || !studentClass || !dob || !gender || !contactNumber) {
+        console.log( year, department, rollNo, studentClass, dob, gender,contactNumber)
         throw new ApiError(400, "All fields are required");
     }
     const userId = req.user?._id;
+    
+    if(!userId) {
+        throw new ApiError(401, "Unauthorized access");
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
         userId,
@@ -140,6 +145,9 @@ const updateAcademicInfo = AsyncHandler(async (req, res) => {
                 rollNo,
                 class: studentClass,
                 hasFilledDetails: true,
+                dob : dob.split('T')[0],
+                gender,
+                phone : contactNumber
             },
         },
         { new: true }

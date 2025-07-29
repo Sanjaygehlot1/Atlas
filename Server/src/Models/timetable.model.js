@@ -41,9 +41,11 @@ const timetableSchema = new Schema({
   entryHash: { 
     type: String,
     required: true,
-    unique: true, 
+    unique: true 
   },
 }, { timestamps: true });
 
+timetableSchema.index({ class: 1, day: 1 });
+
 const Timetable = mongoose.model('Timetable', timetableSchema);
-export default Timetable;
+export  {Timetable};

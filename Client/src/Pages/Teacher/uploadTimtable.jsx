@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Form, Select, Button, Upload, Typography, message, Row, Col, ConfigProvider } from 'antd';
+import { Form, Select, Button, Upload, Typography, message, Row, Col, ConfigProvider,App } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { uploadTimetable } from '../../Slices/Timetable';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -10,7 +10,7 @@ const TimetableUploadForm = () => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-
+  const { message } = App.useApp();
   /**
    * This function is triggered when the user submits the form.
    * It handles form validation, file preparation, and the API call to the backend.
@@ -24,28 +24,25 @@ const TimetableUploadForm = () => {
 
     const formData = new FormData();
     formData.append('year', values.year);
-    formData.append('file', fileList[0].originFileObj); 
+    formData.append('file', fileList[0]); 
 
     setIsUploading(true);
 
     try {
-      const API_URL = '/api/timetable/upload'; 
+      console.log(fileList)
+      console.log("--- FormData Content ---");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
       
-      const response = await axios.post(API_URL, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Display a success message from the server.
-      message.success(response.data.message || 'Timetable processed successfully!');
+      const response = await uploadTimetable(formData);
+      console.log(response);
+      message.success(response.message || 'Timetable processed successfully!');
       
-      // Reset the form and file list after a successful upload.
       form.resetFields();
       setFileList([]);
 
     } catch (error) {
-      // Provide detailed and user-friendly error feedback.
       const errorMessage = error.response?.data?.error || 'An unexpected error occurred during the upload.';
       message.error(errorMessage);
     } finally {
@@ -53,18 +50,14 @@ const TimetableUploadForm = () => {
     }
   };
 
-  /**
-   * Configuration for the Ant Design Upload component.
-   */
+ 
   const uploadProps = {
     onRemove: () => {
       setFileList([]);
     },
     beforeUpload: (file) => {
-      // We only want to handle one file at a time.
       setFileList([file]);
-      // Returning false prevents the component from uploading the file automatically.
-      // We will handle the upload manually when the form is submitted.
+    
       return false;
     },
     fileList,
@@ -73,22 +66,12 @@ const TimetableUploadForm = () => {
   };
 
   return (
-    // We use ConfigProvider to set a global theme for Ant Design components.
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#1890ff', // A modern blue color for primary actions.
-          fontFamily: 'Inter, sans-serif',
-          borderRadius: 8,
-        },
-      }}
-    >
       <Row 
         justify="center" 
         align="middle" 
         style={{ 
           minHeight: '100vh', 
-          background: '#f0f2f5', // A light grey background for better contrast.
+          background: '#f0f2f5', 
           padding: '20px' 
         }}
       >
@@ -112,7 +95,7 @@ const TimetableUploadForm = () => {
               form={form}
               layout="vertical"
               onFinish={onFinish}
-              initialValues={{ year: 'SE' }} // Set a default value for the year.
+              initialValues={{ year: 'TE' }} 
             >
               <Form.Item
                 name="year"
@@ -157,12 +140,25 @@ const TimetableUploadForm = () => {
           </div>
         </Col>
       </Row>
-    </ConfigProvider>
+    
   );
 };
 
-// To use this component in your application, you would typically export it as the default.
-// For example, in your main App.js file:
-// import TimetableUploadForm from './components/TimetableUploadForm';
-// function App() { return <TimetableUploadForm />; }
-export default TimetableUploadForm;
+const TimetableUpload = () => (
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1890ff',
+          fontFamily: 'Inter, sans-serif',
+          borderRadius: 8,
+        },
+      }}
+    >
+      <App>
+        <TimetableUploadForm />
+      </App>
+    </ConfigProvider>
+);
+
+export default TimetableUpload;
+

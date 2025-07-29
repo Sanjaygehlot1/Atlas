@@ -2,6 +2,8 @@ import  User  from "../Models/students.model.js"
 import { ApiError } from "../Utils/ApiError.js"
 import { AsyncHandler } from "../Utils/AsyncHandler.js"
 import jwt from 'jsonwebtoken'
+
+
 const AuthMiddleware = AsyncHandler(async (req,res,next)=>{
     try {
         const token = await req.cookies?.accessToken

@@ -1,5 +1,5 @@
 import parseYearlyTimetableExcel from '../Utils/parseTimetable.js';
-import Timetable from '../Models/timetable.model.js';
+import { Timetable } from '../Models/timetable.model.js';
 import Year from '../Models/year.model.js';
 import TimeSlot from '../Models/timeSlots.model.js';
 import Faculty from '../Models/faculty.model.js';
@@ -7,6 +7,7 @@ import Room from '../Models/rooms.model.js';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import fs from 'fs';
+import { ApiResponse } from '../Utils/ApiResponse.js';
 
 const generateRecordHash = (record) => {
   const dataString = [
@@ -64,11 +65,11 @@ export async function handleTimetableUpload(req, res) {
       newRecordsWithHashes.map(async (record) => {
 
         const yearDoc = await Year.findOneAndUpdate({ name: record.class }, { $setOnInsert: { name: record.class, year: year, division: 'TBD', department: 'TBD' } }, { upsert: true, new: true });
-        
+
         const timeSlotDoc = await TimeSlot.findOneAndUpdate({ label: record.timeSlot }, { $setOnInsert: { label: record.timeSlot, startTime: '00:00', endTime: '00:00' } }, { upsert: true, new: true });
-        
+
         const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT' } }, { upsert: true, new: true });
-        
+
         const roomDoc = await Room.findOneAndUpdate({ roomCode: record.room }, { $setOnInsert: { roomCode: record.room, floor: 'TBD' } }, { upsert: true, new: true });
 
         return {
@@ -99,6 +100,14 @@ export async function handleTimetableUpload(req, res) {
 
   } catch (err) {
     console.error('An error occurred during the timetable update process:', err);
+
+    if (err.code === 11000) {
+        return res.status(409).json({
+            error: "Duplicate key error.",
+            details: "This error can occur if the Excel file contains identical rows for the same class. Please check the file for duplicates."
+        });
+    }
+
     return res.status(500).json({
       error: 'An internal server error occurred.',
       details: err.message,
@@ -114,4 +123,34 @@ export async function handleTimetableUpload(req, res) {
       });
     }
   }
+}
+
+export async function getTimetableForAClass(req, res) {
+
+  const { className } = req.body;
+  if (!className) {
+    return res.status(400).json({ error: 'Class name is required.' });
+  }
+  try {
+
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
+
+    const timetable = await Timetable.find({ class: className, day })
+      .populate('year', 'name')
+      .populate('timeSlot', 'label')
+      .populate('faculty', 'name code')
+      .populate('rooms', 'roomCode floor')
+      .select(' -createdAt -updatedAt -entryHash').exec();
+
+    console.log(timetable);
+    console.log();
+
+    if (!timetable || timetable.length === 0) {
+      return res.status(404).json({ message: `No timetable found for class ${className} for today.` });
+    }
+    return res.status(200).json(new ApiResponse(200, timetable, `Timetable for class ${className} retrieved successfully.`));
+  } catch (error) {
+
+  }
+
 }
