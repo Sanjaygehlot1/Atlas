@@ -4,18 +4,24 @@ const getUserClass = (user) => {
     }
 
     let className = user.year;
+
     if (user.department === "INFT") {
-        className += " " + "IT";
+        className += " IT";
     } else if (user.department === "CMPN") {
-        className += " " + "CS";
+        className += " CS";
     } else if (user.department === "ECS") {
-        className += " " + "ECS";
+        className += " ECS";
     } else if (user.department === "EXTC") {
-        className += " " + "EXTC";
+        className += " EXTC";
     }
 
-    return className + " " + user.class;
+    console.log("Class Name:", user.class);
 
-}
+    className += " " + (user.class === "Class 1" ? "1" : "2");
+
+    console.log("Final Class Name:", className);
+
+    return className;
+};
 
 export default getUserClass;

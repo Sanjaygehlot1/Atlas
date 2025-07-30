@@ -126,10 +126,13 @@ const logoutUser = AsyncHandler(async (req, res) => {
 
 const updateAcademicInfo = AsyncHandler(async (req, res) => {
     const { year, department, rollNo, studentClass, dob, gender,contactNumber } = req.body;
+
+    console.log(year, department, rollNo, studentClass, dob, gender,contactNumber)
     if (!year || !department || !rollNo || !studentClass || !dob || !gender || !contactNumber) {
         console.log( year, department, rollNo, studentClass, dob, gender,contactNumber)
         throw new ApiError(400, "All fields are required");
     }
+    
     const userId = req.user?._id;
     
     if(!userId) {

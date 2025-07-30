@@ -47,7 +47,7 @@ const AcademicInfoComponent = () => {
 
     const updateAcademics = async (values) => {
         console.log("Updating academics with:", values);
-        const res = await updateAcademicInfo({...values, studentClass : values.class});
+        const res = await updateAcademicInfo({...values, studentClass : values.studentClass});
         console.log(res);
         
     };
