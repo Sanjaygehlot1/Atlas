@@ -47,7 +47,7 @@ const LandingPage = () => {
               <Link to="/login">
                 <Button icon={<LoginOutlined />}>Login</Button>
               </Link>
-              <Link to="/register">
+              <Link to="/create-account">
                 <Button type="primary" icon={<TeamOutlined />}>Register</Button>
               </Link>
             </Space>

@@ -18,8 +18,8 @@ app.use(cookieParser())
 
 // Routes
 
-app.use('/api/timetable', timetableRoutes);
-app.use('/api/users', userRouter);
+app.use('/api/timetable', timetableRoutes); 
+app.use('/api/users', userRouter); // localhost:8000/api/users/auth/verify {POST}
 
 app.use(express.static("public"))
 app.use((err, req, res, next) => {
