@@ -11,9 +11,9 @@ import {
   Checkbox,
   Modal,
   Steps,
-  message,
   Segmented,
   App,
+  Spin
 } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, TeamOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -55,23 +55,24 @@ const LoginComponent = () => {
   const [forgotPasswordStep, setForgotPasswordStep] = useState(0);
   const [resetEmail, setResetEmail] = useState('');
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, user, isLoading} = useAuth();
   const { message } = App.useApp();
 
-  useEffect(() => {
-    if (user) {
-      console.log("User is already logged in. Redirecting...");
-      if (user.role === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else if (user.role === 'student') {
-        if (user.hasFilledDetails) {
-          navigate('/student/dashboard');
-        } else {
-          navigate('/student/academic-info');
-        }
+ useEffect(() => {
+  if (!isLoading && user) {
+    if (user.role === 'teacher') {
+      navigate('/teacher/dashboard');
+    } else if (user.role === 'student') {
+      if (user.hasFilledDetails) {
+        navigate('/student/dashboard');
+      } else {
+        navigate('/student/academic-info');
       }
     }
-  }, [user, navigate]);
+  }
+}, [user, isLoading, navigate]);
+
+
 
 
   const handleLogin = async (values) => {
@@ -95,6 +96,15 @@ const LoginComponent = () => {
   const handleSendResetCode = (values) => { /* ... */ };
   const handleVerifyCode = (values) => { /* ... */ };
   const handleResetPassword = (values) => { /* ... */ };
+
+
+  if (isLoading) {
+  return (
+    <Row justify="center" align="middle" style={{ minHeight: '100vh' }}>
+      <Spin size="large" tip="Checking session..." />
+    </Row>
+  );
+}
 
 
   return (

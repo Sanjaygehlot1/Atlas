@@ -1,5 +1,6 @@
 import parseYearlyTimetableExcel from '../Utils/parseTimetable.js';
 import { Timetable } from '../Models/timetable.model.js';
+import LectureException from '../Models/exceptionLectures.model.js';
 import Year from '../Models/year.model.js';
 import TimeSlot from '../Models/timeSlots.model.js';
 import Faculty from '../Models/faculty.model.js';
@@ -8,6 +9,8 @@ import mongoose from 'mongoose';
 import crypto from 'crypto';
 import fs from 'fs';
 import { ApiResponse } from '../Utils/ApiResponse.js';
+import { AsyncHandler } from '../Utils/AsyncHandler.js';
+import { ApiError } from '../Utils/ApiError.js';
 
 const generateRecordHash = (record) => {
   const dataString = [
@@ -102,10 +105,10 @@ export async function handleTimetableUpload(req, res) {
     console.error('An error occurred during the timetable update process:', err);
 
     if (err.code === 11000) {
-        return res.status(409).json({
-            error: "Duplicate key error.",
-            details: "This error can occur if the Excel file contains identical rows for the same class. Please check the file for duplicates."
-        });
+      return res.status(409).json({
+        error: "Duplicate key error.",
+        details: "This error can occur if the Excel file contains identical rows for the same class. Please check the file for duplicates."
+      });
     }
 
     return res.status(500).json({
@@ -150,7 +153,142 @@ export async function getTimetableForAClass(req, res) {
     }
     return res.status(200).json(new ApiResponse(200, timetable, `Timetable for class ${className} retrieved successfully.`));
   } catch (error) {
-
+    throw new ApiError(500, "An error occurred while retrieving the timetable.");
   }
 
 }
+
+export const getScheduleForATeacher = AsyncHandler(async(req,res)=>{
+  
+  const teacherId = req.user?._id;
+
+  if (!teacherId) {
+    return new ApiError(400, "No teacher ID provided.");
+  }
+  try {
+
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
+
+    const schedule = await Timetable.find({ faculty: { $in: ["68860d94cf2bfd5edb077450"] },
+      day, })
+      .populate('year', 'name')
+      .populate('timeSlot', 'label')
+      .populate('faculty', 'name code')
+      .populate('rooms', 'roomCode floor')
+      .select(' -createdAt -updatedAt -entryHash').exec();
+
+    console.log(schedule);
+
+    if (!schedule || schedule.length === 0) {
+      return res.status(404).json({ message: `No schedule found for today.` });
+    }
+    return res.status(200).json(new ApiResponse(200, schedule, `Schedule for today retrieved successfully.`));
+  } catch (error) {
+    throw new ApiError(500, "An error occurred while retrieving the schedule.");
+  }
+
+})
+
+export async function getExceptionsForAClass(req, res) {
+  const { className } = req.body;
+  if (!className) {
+    return res.status(400).json({ error: 'Class name is required.' });
+  }
+  try {
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
+    console.log(day)
+    const exceptions = await LectureException.find({ class: className, day: day.trim() })
+      .populate('timetableEntry', 'subjectName timeSlot class')
+      .populate('timetableEntry.year', 'name')
+      .populate('timetableEntry.faculty', 'name code')
+      .populate('timetableEntry.rooms', 'roomCode floor')
+      .select(' -createdAt -updatedAt -entryHash').exec();
+
+    if (!exceptions || exceptions.length === 0) {
+      return res.status(404).json(new ApiResponse(200, [], `No exceptions found for class ${className} for today.`));
+    }
+    console.log(exceptions.length)
+    return res.status(200).json(new ApiResponse(200, exceptions, `Exceptions for class ${className} retrieved successfully.`));
+  } catch (error) {
+    throw new ApiError(500, "An error occurred while retrieving the exceptions.");
+  }
+}
+
+export async function getExceptionsForAFaculty(req, res) {
+  const { facultyId } = req.body;
+  console.log(facultyId)
+  if (!facultyId) {
+    return res.status(400).json({ error: 'Faculty ID is required.' });
+  }
+  try {
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
+    console.log(day)
+    const exceptions = await LectureException.find({ faculty: facultyId, day: day.trim() })
+      .populate('timetableEntry', 'subjectName timeSlot class')
+      .populate('timetableEntry.year', 'name')
+      .populate('timetableEntry.faculty', 'name code')
+      .populate('timetableEntry.rooms', 'roomCode floor')
+      .select(' -createdAt -updatedAt -entryHash').exec();
+
+    if (!exceptions || exceptions.length === 0) {
+      return res.status(404).json(new ApiResponse(200, [], `No exceptions found for today.`));
+    }
+    console.log(exceptions)
+    return res.status(200).json(new ApiResponse(200, exceptions, `Exceptions retrieved successfully.`));
+  } catch (error) {
+    throw new ApiError(500, "An error occurred while retrieving the exceptions.");
+  }
+}
+
+export const updateLectureStatus = AsyncHandler(async (req, res) => {
+  console.log("updateLectureStatus triggered");
+
+  const { lectureId } = req.params;
+  const { status, updatedRoom } = req.body;
+  console.log(req.body)
+  const teacherId = req.user?._id;
+  console.log(lectureId,status)
+
+  if (!status) {
+    throw new ApiError(400, "No update status provided.");
+  }
+
+  console.log(status);
+
+  if (status === "Venue_Changed") {
+   
+    if (!updatedRoom) {
+      throw new ApiError(400, "No updated room provided.");
+    }
+  }
+
+  const lecture = await Timetable.findById(lectureId).populate('faculty');
+  if (!lecture) {
+    throw new ApiError(404, "Lecture not found.");
+  }
+
+  console.log(lecture)
+
+  // if (!lecture.faculty.some(f => f._id.equals(teacherId)) && req.user.role !== 'admin') {
+  //     throw new ApiError(403, "You are not authorized to update this lecture.");
+  // }
+
+  const lectureException = await LectureException.findOneAndUpdate(
+    { timetableEntry: lectureId, day: lecture.day, class: lecture.class },
+    { $set: { status, notes: lecture.notes, faculty: lecture.faculty[0]._id, name: lecture.subjectName, date: new Date(), updatedRoom } },
+    { upsert: true, new: true }
+  );
+  await lectureException.save();
+
+
+  console.log(updatedRoom)
+  let message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been ${status.toLowerCase()}.`;
+
+  if (updatedRoom != undefined) {
+    message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been  shifted to Room ${updatedRoom} on ${lecture.day}.`;
+  }
+
+  // await sendNotificationToClass(lecture.class, "Lecture Status Update", message);
+
+  return res.status(200).json(new ApiResponse(200, lectureException, message));
+});

@@ -11,41 +11,77 @@ import LandingPage from './Pages/Others/LandingPage.jsx'
 import StudentDashboard from './Pages/Student/studentDashboard.jsx'
 import AcademicInfoComponent from './Pages/Student/academicInfo.jsx'
 import AcademicInfoPage from './Pages/Student/academicInfo.jsx'
+import PublicRoute from './Helper/publicRoute.jsx'
+import PrivateRoute from './Helper/privateRoute.jsx'
+import { NotFoundPage } from './Pages/Others/NotFoundPage.jsx'
+import { UnauthorizedPage } from './Pages/Others/UnAuthorizedPage.jsx'
 
 const router = createBrowserRouter([
   {
-    element: <App/>,
+    element: <App />,
     path: '/',
-    children:[     
+    children: [
       {
-        element: <LandingPage/>,
-        path : '/'
-      },      
+        element: (
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        ),
+        path: '/'
+      },
       {
-        element: <RegisterPage/>,
+        element: <RegisterPage />,
         path: '/create-account',
       },
       {
-        element: <LoginPage/>,
+        element: (
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        ),
         path: '/login',
       },
       {
-        element: <AcademicInfoPage/>,
+        element: (
+          <PrivateRoute allowedRoles={['student']}>
+            <AcademicInfoComponent/>
+          </PrivateRoute>
+        ),
         path: '/student/academic-info',
-        
+
       },
       {
-        element: <TimetableUploadForm/>,
+        element: (
+          <PrivateRoute allowedRoles={['teacher']}>
+              <TimetableUploadForm/>
+          </PrivateRoute>
+        ),
         path: '/teacher/upload-timetable',
-        
+
       },
       {
-        element: <Dashboard/>,
+        element:  (
+          <PrivateRoute allowedRoles={['teacher']}>
+              <Dashboard/>
+          </PrivateRoute>
+        ),
         path: '/teacher/dashboard',
       },
       {
-        element: <StudentDashboard/>,
+        element:  (
+          <PrivateRoute allowedRoles={['student']}>
+              <StudentDashboard/>
+          </PrivateRoute>
+        ),
         path: '/student/dashboard',
+      },
+      {
+        element: <UnauthorizedPage/>,
+        path: '/unauthorized',
+      },
+      {
+        element: <NotFoundPage/>,
+        path: '*',
       }
     ]
   }
@@ -55,5 +91,5 @@ const router = createBrowserRouter([
 
 
 createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router}/>
+  <RouterProvider router={router} />
 )

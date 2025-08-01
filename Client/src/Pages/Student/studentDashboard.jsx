@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Layout,
     Menu,
@@ -19,7 +19,7 @@ import {
     Tag,
     Modal,
     Descriptions,
-    message
+    Empty,
 } from 'antd';
 import {
     AppstoreOutlined,
@@ -36,82 +36,45 @@ import {
     CoffeeOutlined,
     CloseCircleOutlined,
     PlusOutlined,
-    EditOutlined
+    EditOutlined,
+    SwapOutlined,
+    UserSwitchOutlined,
 } from '@ant-design/icons';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Link } from 'react-router-dom';
-import { fetchTimeTable } from '../../Slices/Timetable';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+// import { fetchTimeTable } from '../../Slices/Timetable';
+import { fetchTimeTable } from '../../Slices/Timetable';
 import getUserClass from '../../Helper/getClass';
-
 const { Header, Sider, Content } = Layout;
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
-
-const mockUser = {
-    name: 'Bheem',
-    class: 'SE IT 1',
-    avatarUrl: 'https://i.pravatar.cc/150?u=bheem',
-};
-
-
-
-
-const attendanceData = [
-    { name: 'Present', value: 85 },
-    { name: 'Absent', value: 15 },
-];
+const attendanceData = [{ name: 'Present', value: 85 }, { name: 'Absent', value: 15 }];
 const ATTENDANCE_COLORS = ['#3b82f6', '#ef4444'];
-
-const quickStats = {
-    overallAttendance: 85,
-    upcomingAssignments: 3,
-    subjectsEnrolled: 5,
-};
-
-const recentAnnouncements = [
-    { title: 'Mid-term exam schedule released', date: '2025-07-28' },
-    { title: 'Guest lecture on AI/ML on Friday', date: '2025-07-27' },
-    { title: 'Last day for fee payment is Aug 5th', date: '2025-07-26' },
-];
-
+const quickStats = { overallAttendance: 85, upcomingAssignments: 3, subjectsEnrolled: 5 };
+const recentAnnouncements = [{ title: 'Mid-term exam schedule released', date: '2025-07-28' }, { title: 'Guest lecture on AI/ML on Friday', date: '2025-07-27' }];
 
 const parseTime = (timeStr) => {
+    if (!timeStr) return new Date(0);
     const now = new Date();
     const [time, modifier] = timeStr.split(' ');
     let [hours, minutes] = time.split(':');
-    if (hours === '12') {
-        hours = '00';
-    }
-    if (modifier === 'PM') {
-        hours = parseInt(hours, 10) + 12;
-    }
+    if (hours === '12') hours = '00';
+    if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
     return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
 };
 
-
-const getLectureStatus = (startTime, endTime) => {
+const getLiveStatus = (startTime, endTime) => {
     const now = new Date();
     const start = parseTime(startTime);
     const end = parseTime(endTime);
-
     if (now >= start && now < end) return 'ongoing';
     if (now < start) return 'upcoming';
     return 'finished';
 };
 
-
 const AppLogo = ({ collapsed }) => (
-    <div style={{
-        height: '64px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        fontSize: collapsed ? '16px' : '20px',
-        fontWeight: 'bold',
-        transition: 'font-size 0.2s',
-    }}>
+    <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: collapsed ? '16px' : '20px', fontWeight: 'bold', transition: 'font-size 0.2s' }}>
         {collapsed ? 'CA' : 'CollegeApp'}
     </div>
 );
@@ -120,129 +83,143 @@ const AppLogo = ({ collapsed }) => (
 const StudentDashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileDrawerVisible, setMobileDrawerVisible] = useState(false);
-    const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
-    const [currentTT, setCurrentTT] = useState([]);
-    const { user } = useAuth();
+    const [todaysTimetable, setTodaysTimetable] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const { user, logout } = useAuth();
+    const { message } = App.useApp();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update time every minute
-        return () => clearInterval(timer);
-    }, []);
-
-    useEffect(() => {
-        if (user && currentTT.length === 0) {
-            const fetchTimetable = async () => {
+        const loadDashboardData = async () => {
+            if (user && user.class) {
+                const className = getUserClass(user);
+                console.log(className);
+                setIsLoading(true);
                 try {
-                         const userClass = getUserClass(user);
-                    console.log(userClass);
-
-                    const response = await fetchTimeTable(userClass);
-                    setCurrentTT(response);
+                    const response = await fetchTimeTable(className);
+                    setTodaysTimetable(response);
+                    console.log(response)
                 } catch (error) {
-                    message.error(error.response?.data?.message || 'Failed to fetch timetable. Please try again later.');
                     console.error('Error fetching timetable:', error);
+                    message.error('Failed to load timetable.');
+                } finally {
+                    setIsLoading(false);
                 }
-            };
+            } else if (user) {
+                setIsLoading(false);
+            }
+        };
+        loadDashboardData();
+    }, [user]);
 
-            fetchTimetable();
-        }
-    }, [currentTT, user])
+    const today = new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
 
-    const today = new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(currentTime);
-
+    const handleLogout = () => { /* ... */ };
     const toggleSidebar = () => setCollapsed(!collapsed);
     const toggleMobileDrawer = () => setMobileDrawerVisible(!mobileDrawerVisible);
     const showProfileModal = () => setIsProfileModalVisible(true);
     const hideProfileModal = () => setIsProfileModalVisible(false);
 
+    const getLectureInfo = (lecture) => {
+        const info = {
+            icon: <ReadOutlined />,
+            color: '#3b82f6', // Blue for Theory
+            tag: null,
+            isFaded: false,
+        };
 
-    const getLectureIcon = (type) => {
-        switch (type) {
-            case 'Lab': return <ExperimentOutlined />;
-            case 'Break': return <CoffeeOutlined />;
-            default: return <ReadOutlined />;
+        switch (lecture.lectureType) {
+            case 'Lab':
+                info.icon = <ExperimentOutlined />;
+                info.color = '#8b5cf6';
+                break;
+            case 'Break':
+                info.icon = <CoffeeOutlined />;
+                info.color = '#f59e0b';
+                break;
         }
-    };
 
-    const handleLogout = () => {
-        logout();
-        message.success('You have been logged out.');
-        navigate('/login');
-    };
-
-    const getLectureTypeColor = (type, status) => {
-        if (status === 'Cancelled') return '#ef4444'; // Red for cancelled
-        switch (type) {
-            case 'Lab': return '#8b5cf6'; // Violet for Lab
-            case 'Break': return '#f59e0b'; // Amber for Break
-            default: return '#3b82f6'; // Blue for Theory
+        switch (lecture.status) {
+            case 'Cancelled':
+                info.tag = <Tag icon={<CloseCircleOutlined />} color="error">Cancelled</Tag>;
+                info.color = '#ef4444';
+                info.isFaded = true;
+                break;
+            case 'Teacher_Absent':
+                info.tag = <Tag icon={<UserSwitchOutlined />} color="warning">Teacher Absent</Tag>;
+                info.color = '#f97316';
+                info.isFaded = true;
+                break;
+            case 'Venue_Changed':
+                info.tag = <Tag icon={<SwapOutlined />} color="purple">Venue Changed</Tag>;
+                break;
+            case 'Rescheduled':
+                info.tag = <Tag icon={<ClockCircleOutlined />} color="cyan">Rescheduled</Tag>;
+                break;
         }
+        return info;
     };
 
     const renderTimelineItem = (lecture, index) => {
         const [startTime, endTime] = lecture.timeSlot.label.split(' - ');
-        const liveStatus = getLectureStatus(startTime, endTime);
+        const liveStatus = getLiveStatus(startTime, endTime);
+        const { icon, color, tag, isFaded } = getLectureInfo(lecture);
 
-        const isCancelled = false; // hardcoded for now
-        const cardColor = getLectureTypeColor(lecture.lectureType, "Cancelled");
-
-        const isNextUpcoming = !currentTT.some((l, i) => i < index && getLectureStatus(l.timeSlot.label.split(' - ')[0], l.timeSlot.label.split(' - ')[1]) !== 'finished') && liveStatus === 'upcoming' && !isCancelled;
+        const isNextUpcoming = !todaysTimetable.some((l, i) => i < index && getLiveStatus(l.timeSlot.label.split(' - ')[0], l.timeSlot.label.split(' - ')[1]) !== 'finished' && l.status !== 'Cancelled') && liveStatus === 'upcoming' && !isFaded;
 
         const cardStyle = {
             marginBottom: '16px',
-            borderLeft: `5px solid ${cardColor}`,
+            borderLeft: `5px solid ${color}`,
             borderRadius: '12px',
             transition: 'all 0.3s ease',
             background: '#fff',
         };
 
-        if (liveStatus === 'finished' || isCancelled) {
+        if (liveStatus === 'finished' || isFaded) {
             cardStyle.opacity = 0.65;
             cardStyle.background = '#f9f9f9';
         }
-        if (liveStatus === 'ongoing' && !isCancelled) {
-            cardStyle.boxShadow = `0 4px 12px ${cardColor}40`;
-            cardStyle.background = `linear-gradient(90deg, ${cardColor}10, #fff)`;
+        if (liveStatus === 'ongoing' && !isFaded) {
+            cardStyle.boxShadow = `0 4px 12px ${color}40`;
+            cardStyle.background = `linear-gradient(90deg, ${color}10, #fff)`;
         }
         if (isNextUpcoming) {
-            cardStyle.boxShadow = `0 4px 12px ${cardColor}40`;
+            cardStyle.boxShadow = `0 4px 12px ${color}40`;
         }
 
         return (
-            <Timeline.Item key={index} color={liveStatus === 'finished' || isCancelled ? 'gray' : cardColor} dot={liveStatus === 'ongoing' && !isCancelled ? <Spin /> : <ClockCircleOutlined />}>
-                <Card
-                    style={cardStyle}
-                    bodyStyle={{ padding: '20px' }}
-                >
+            <Timeline.Item key={lecture._id} color={liveStatus === 'finished' || isFaded ? 'gray' : color} dot={liveStatus === 'ongoing' && !isFaded ? <Spin /> : <ClockCircleOutlined />}>
+                <Card style={cardStyle} bodyStyle={{ padding: '20px' }}>
                     <Row justify="space-between" align="top">
                         <Col>
                             <Space direction="vertical" size={2}>
                                 <Text strong>{lecture.timeSlot.label}</Text>
-                                <Title level={4} style={{ marginTop: 0, textDecoration: isCancelled ? 'line-through' : 'none' }}>
-                                    <Space>
-                                        {getLectureIcon(lecture.lectureType)}
-                                        {lecture.subjectName}
-                                    </Space>
+                                <Title level={4} style={{ marginTop: 0, textDecoration: isFaded ? 'line-through' : 'none' }}>
+                                    <Space>{icon} {lecture.subjectName}</Space>
                                 </Title>
                                 <Text type="secondary">
-                                    {lecture.lectureType !== 'Break' ? `${lecture.faculty[0].code} • Room: ${lecture.rooms[0].roomCode}` : 'Enjoy your break!'}
+                                    {lecture.lectureType !== 'Break' ?
+                                        <>
+                                            {lecture.faculty[0]?.name + ` (${lecture.faculty[0]?.code})` || 'N/A'} • Room:
+                                            <span style={{ textDecoration: lecture.status === 'Venue_Changed' ? 'line-through' : 'none', marginRight: lecture.status === 'Venue_Changed' ? '8px' : '0' }}>
+                                                {` ${lecture.rooms[0]?.roomCode  || 'N/A'}`}
+                                            </span>
+                                            {lecture.status === 'Venue_Changed' && <Text strong>{lecture.updatedRoom}</Text>}
+                                            
+                                        </>
+                                        : 'Enjoy your break!'}
                                 </Text>
                             </Space>
                         </Col>
                         <Col style={{ textAlign: 'right' }}>
-                            {isCancelled ? (
-                                <Tag icon={<CloseCircleOutlined />} color="error">Cancelled</Tag>
-                            ) : (liveStatus === 'ongoing' || isNextUpcoming) && (
-                                <Badge status={liveStatus === 'ongoing' ? "processing" : "success"} text={liveStatus === 'ongoing' ? "Ongoing" : "Next Up"} />
-                            )}
+                            {tag ? tag : (liveStatus === 'ongoing' || isNextUpcoming) && <Badge status={liveStatus === 'ongoing' ? "processing" : "success"} text={liveStatus === 'ongoing' ? "Ongoing" : "Next Up"} />}
                         </Col>
                     </Row>
-                    {!isCancelled && lecture.type !== 'Break' && (
+                    {!isFaded && lecture.lectureType !== 'Break' && (
                         <Row style={{ marginTop: '16px' }}>
-                            <Button icon={<PlusOutlined />} onClick={() => message.info(`Creating notes for ${lecture.subject}...`)}>
-                                Create Notes
-                            </Button>
+                            <Button icon={<PlusOutlined />} onClick={() => message.info(`Creating notes for ${lecture.subjectName}...`)}>Create Notes</Button>
                         </Row>
                     )}
                 </Card>
@@ -256,65 +233,41 @@ const StudentDashboard = () => {
         { key: '3', icon: <BookOutlined />, label: 'My Notes' },
         { key: '4', icon: <BellOutlined />, label: 'Announcements' },
         { key: '5', icon: <SettingOutlined />, label: 'Settings' },
-        { key: '6', icon: <LogoutOutlined />, label: 'Logout' },
+        { key: '6', icon: <LogoutOutlined />, label: 'Logout', onClick: handleLogout },
     ];
 
-    const SiderMenu = () => (
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={menuItems} />
-    );
+    const SiderMenu = () => <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={menuItems} />;
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider
-                collapsible
-                collapsed={collapsed}
-                onCollapse={toggleSidebar}
-                breakpoint="lg"
-                collapsedWidth="80"
-                style={{ position: 'sticky', top: 0, height: '100vh', background: '#001529' }}
-                className="hide-on-mobile"
-            >
+            <Sider collapsible collapsed={collapsed} onCollapse={toggleSidebar} breakpoint="lg" collapsedWidth="80" style={{ position: 'sticky', top: 0, height: '100vh', background: '#001529' }} className="hide-on-mobile">
                 <AppLogo collapsed={collapsed} />
                 <SiderMenu />
             </Sider>
-
-            <Drawer
-                title={<AppLogo collapsed={false} />}
-                placement="left"
-                onClose={toggleMobileDrawer}
-                open={mobileDrawerVisible}
-                className="show-on-mobile"
-                bodyStyle={{ padding: 0, background: '#001529' }}
-                headerStyle={{ background: '#001529', borderBottom: 0 }}
-                closeIcon={<Button type="text" style={{ color: 'white' }}>X</Button>}
-            >
+            <Drawer title={<AppLogo collapsed={false} />} placement="left" onClose={toggleMobileDrawer} open={mobileDrawerVisible} className="show-on-mobile" bodyStyle={{ padding: 0, background: '#001529' }} headerStyle={{ background: '#001529', borderBottom: 0 }} closeIcon={<Button type="text" style={{ color: 'white' }}>X</Button>}>
                 <SiderMenu />
             </Drawer>
 
             <Layout>
                 <Header style={{ padding: '0 24px', background: '#fff', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Button
-                        className="show-on-mobile"
-                        icon={<MenuOutlined />}
-                        onClick={toggleMobileDrawer}
-                        type="text"
-                    />
+                    <Button className="show-on-mobile" icon={<MenuOutlined />} onClick={toggleMobileDrawer} type="text" />
                     <Title level={4} style={{ margin: 0 }} className="hide-on-mobile">Student Dashboard</Title>
                     <Space align="center" size="large">
                         <Badge count={3}><BellOutlined style={{ fontSize: '20px' }} /></Badge>
-                        <Space>
-                            <Avatar src={mockUser.avatarUrl} icon={<UserOutlined />} onClick={showProfileModal}/>
-                            <Text strong className="hide-on-mobile">Welcome, {user.name}!</Text>
+                        <Space onClick={showProfileModal} style={{ cursor: 'pointer' }}>
+                            <Avatar src={user?.avatar} icon={<UserOutlined />} />
+                            <Text strong className="hide-on-mobile">Welcome, {user?.name || 'Student'}!</Text>
                         </Space>
                     </Space>
                 </Header>
-
                 <Content style={{ padding: '24px', background: '#f0f2f5' }}>
-                    <Row gutter={[24, 24]}>
-                        <Col xs={24} lg={14}>
+                    <Spin spinning={isLoading} tip="Loading Dashboard...">
+                        <Row gutter={[24, 24]}>
+                            
+                             <Col xs={24} lg={14}>
                             <Card title={`Today's Schedule: ${today}`} bordered={false} style={{ borderRadius: '12px' }}>
                                 <Timeline mode="left">
-                                    {currentTT.map(renderTimelineItem)}
+                                    {todaysTimetable.map(renderTimelineItem)}
                                 </Timeline>
                             </Card>
                         </Col>
@@ -362,10 +315,11 @@ const StudentDashboard = () => {
                                 />
                             </Card>
                         </Col>
-                    </Row>
+                        </Row>
+                    </Spin>
                 </Content>
             </Layout>
-            <style>{`
+           <style>{`
         .hide-on-mobile {
           display: block;
         }
@@ -385,33 +339,56 @@ const StudentDashboard = () => {
         }
       `}</style>
             <Modal
+
                 title="Student Profile"
+
                 open={isProfileModalVisible}
+
                 onCancel={hideProfileModal}
+
                 footer={[
+
                     <Button key="logout" danger icon={<LogoutOutlined />} onClick={handleLogout}>Logout</Button>,
+
                     <Link to="/academic-info" key="edit"><Button key="edit" type="primary" icon={<EditOutlined />} onClick={hideProfileModal}>Edit Profile</Button></Link>,
+
                 ]}
+
             >
+
                 <Row align="middle" gutter={24}>
+
                     <Col><Avatar size={80} src={user?.avatar} icon={<UserOutlined />} /></Col>
+
                     <Col>
+
                         <Title level={3} style={{ margin: 0 }}>{user?.name}</Title>
+
                         <Text type="secondary">{user?.email}</Text>
+
                     </Col>
+
                 </Row>
+
                 <Descriptions bordered column={1} style={{ marginTop: '24px' }}>
+
                     <Descriptions.Item label="Class">{user?.class || 'Not Set'}</Descriptions.Item>
+
                     <Descriptions.Item label="Year">{user?.year || 'Not Set'}</Descriptions.Item>
+
                     <Descriptions.Item label="Department">{user?.department || 'Not Set'}</Descriptions.Item>
+
                     <Descriptions.Item label="Roll Number">{user?.rollNo || 'Not Set'}</Descriptions.Item>
+
                 </Descriptions>
+
             </Modal>
         </Layout>
     );
 };
 
+const DashboardApp = () => (
+    <App><StudentDashboard /></App>
+);
 
-
-
-export default StudentDashboard;
+export default DashboardApp;
