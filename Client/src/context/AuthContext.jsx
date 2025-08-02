@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
                 const response = await AxiosInstance.get('/users/current-user');
                 console.log("Current user response:", response.data);
                 if (response.data.success) {
-                    setUser(response.data.data);
+                    setUser(response.data.data || null);
                 }
             } catch (error) {
                 console.log("No active session found.");

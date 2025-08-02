@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, BarChart3, UsersRound, BookCopy, FileClock, MoreVertical, ChevronRight, CheckCircle, XCircle, AlertCircle, PlusCircle } from 'lucide-react';
-
+import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, BarChart3, UsersRound, BookCopy, FileClock, MoreVertical, ChevronRight, CheckCircle, XCircle, AlertCircle, PlusCircle, UserCircleIcon, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
+import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space } from 'antd'
 // --- MOCK DATA ---
 
-const todaysClasses = [
-    { time: '09:00 - 10:00', subject: 'Mathematics - Grade 10A', room: 'Room 301', color: 'bg-blue-500' },
-    { time: '10:15 - 11:15', subject: 'Physics - Grade 11B', room: 'Lab 2', color: 'bg-purple-500' },
-    { time: '13:00 - 14:00', subject: 'Mathematics - Grade 10C', room: 'Room 303', color: 'bg-teal-500' },
-];
+import { UserSwitchOutlined, SwapOutlined, CompressOutlined } from '@ant-design/icons';
+import ChangeVenueModal from '../../Components/changeVenue.jsx';
+
 
 const assignmentOverview = { pendingGrading: 12, upcomingDue: 5 };
 const quickStats = [
@@ -55,7 +55,8 @@ const studentData = {
     ]
 };
 
-const allClassNames = Object.keys(studentData);
+
+
 
 // --- HELPER & UI COMPONENTS ---
 
@@ -159,16 +160,227 @@ const Card = ({ children, className = '' }) => <div className={`bg-white p-6 rou
 const CardTitle = ({ icon: Icon, title }) => <div className="flex items-center gap-3"><div className="p-2 bg-gray-100 rounded-lg"><Icon className="w-5 h-5 text-gray-600" /></div><h3 className="text-lg font-semibold text-gray-800">{title}</h3></div>;
 
 // --- DASHBOARD & GENERIC WIDGETS ---
-const TodaysClasses = () => <Card><div className="mb-4"><CardTitle icon={Clock} title="Today's Classes" /></div><div className="space-y-4">{todaysClasses.map((item, index) => <div key={index} className="flex items-center p-3 rounded-lg hover:bg-gray-50"><div className={`w-1.5 h-12 rounded-full ${item.color}`}></div><div className="ml-4 flex-1"><p className="font-semibold text-gray-700">{item.subject}</p><p className="text-sm text-gray-500">{item.time} • {item.room}</p></div><button className="text-sm font-medium text-indigo-600 hover:text-indigo-800 px-3 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100">Mark Attendance</button></div>)}</div></Card>;
-const AssignmentOverview = () => <Card><div className="mb-4"><CardTitle icon={BookOpenCheck} title="Assignment Overview" /></div><div className="grid grid-cols-2 gap-4"><div className="p-4 bg-orange-50 rounded-lg text-center"><p className="text-3xl font-bold text-orange-600">{assignmentOverview.pendingGrading}</p><p className="text-sm font-medium text-orange-500">Pending Grading</p></div><div className="p-4 bg-blue-50 rounded-lg text-center"><p className="text-3xl font-bold text-blue-600">{assignmentOverview.upcomingDue}</p><p className="text-sm font-medium text-blue-500">Upcoming Due</p></div></div></Card>;
-const RightPanel = () => <aside className="w-80 bg-white shadow-sm p-6 flex-shrink-0"><h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3><div className="space-y-4">{quickStats.map(stat => <div key={stat.label} className="flex items-center p-3 bg-gray-50 rounded-lg"><div className={`p-2 rounded-full bg-white`}><IconWrapper icon={stat.icon} className={stat.color} /></div><div className="ml-3"><p className="text-2xl font-bold text-gray-800">{stat.value}</p><p className="text-xs font-medium text-gray-500">{stat.label}</p></div></div>)}</div><div className="mt-8"><h3 className="text-lg font-semibold text-gray-800 mb-4">Notifications</h3><div className="space-y-3">{notifications.map((notif, index) => <div key={index} className="flex gap-3"><div className="w-10 h-10 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center">{notif.type === 'query' && <UsersRound size={20} className="text-blue-500" />}{notif.type === 'notice' && <Megaphone size={20} className="text-purple-500" />}{notif.type === 'exam' && <CalendarDays size={20} className="text-green-500" />}</div><div><p className="text-sm text-gray-700">{notif.text}</p><p className="text-xs text-gray-400">{notif.time}</p></div></div>)}</div><button className="w-full mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-800">View All</button></div></aside>;
+
+
+const ManageMenu = ({ onCancel, onVenueChange }) => (
+    <Menu>
+        <Menu.Item key="1" onClick={onCancel}>
+            Cancel Lecture
+        </Menu.Item>
+        <Menu.Item key="2" onClick={onVenueChange}>
+            Change Venue
+        </Menu.Item>
+    </Menu>
+);
+
+const TodaysClasses = () => {
+
+    const { user } = useAuth();
+    const { message } = App.useApp();
+    const [todaysClasses, setTodaysClasses] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+
+    useEffect(() => {
+        if (todaysClasses.length === 0) {
+            const getTodaysClasses = async () => {
+                try {
+                    const response = await getTeacherSchedule("68860d94cf2bfd5edb077450");
+                    setTodaysClasses(response);
+                    console.log(response);
+                } catch (error) {
+                    message.error("Failed to load today's classes.");
+                }
+            }
+
+            getTodaysClasses();
+        }
+    }, [user, todaysClasses])
+
+    const handleChangeVenueClick = () => {
+        setIsModalOpen(true);
+        console.log(isModalOpen)
+    };
+
+
+    const updateStatus = async (lecture, status, updatedRoom) => {
+        try {
+            if (lecture && status) {
+                console.log(lecture)
+                const response = await updateLectureStatus(lecture._id, status,updatedRoom);
+                console.log(response)
+                if (status === "Venue_Changed") {
+                    message.success(`${lecture.subjectName} lecture has been shifted to ${response.updatedRoom} for today.`);
+                } else {
+                    message.success(`${lecture.subjectName} lecture has been ${status.toLowerCase()} for today.`);
+                }
+            }
+        } catch (error) {
+            message.error("Failed to cancel the lecture.");
+        }
+
+    }
+
+
+    return (
+        <Card1
+            title={<Space><Clock size={18} /> Today's Classes</Space>}
+            bordered
+            style={{ width: '100%' }}
+        >
+            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                {todaysClasses.map((item, index) => {
+
+                    const handleChangeVenueClick = () => {
+                        setIsModalOpen(true);
+                    };
+
+                    const handleVenueSubmit = (updatedRoom) => {
+                        setIsModalOpen(false);
+                        updateStatus(item, "Venue_Changed", updatedRoom);
+                        console.log("Changing room to:", updatedRoom, "for lecture:", item._id);
+                        message.success(`Lecture room changed to ${updatedRoom}`);
+                    };
+                    return (
+                        <Card1
+                            key={index}
+                            size="small"
+                            bordered
+                            hoverable
+                            style={{ width: '100%' }}
+                            bodyStyle={{ padding: '16px' }}
+                        >
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+
+                                {/* LEFT: Lecture Info */}
+                                <div className="text-left w-full md:w-auto">
+                                    {/* Subject Name */}
+                                    <strong className="text-base md:text-lg block text-gray-800">
+                                        {item.subjectName}
+                                    </strong>
+
+                                    {/* Status Tag */}
+                                    <div className="mt-1">
+                                        {item.status === 'Cancelled' ? (
+                                            <Tag className="inline-flex items-center gap-1" icon={<span ><XCircle size={15} /></span>} color="error">
+                                                Cancelled
+                                            </Tag>
+                                        ) : item.status === 'Teacher_Absent' ? (
+                                            <Tag icon={<UserSwitchOutlined />} color="warning">Teacher Absent</Tag>
+                                        ) : item.status === 'Rescheduled' ? (
+                                            <Tag className="inline-flex items-center gap-1" icon={<Clock size={14} />} color="cyan">Rescheduled</Tag>
+                                        ) : item.status === 'Replaced' ? (
+                                            <Tag icon={<SwapOutlined />} color="purple">Replaced</Tag>
+                                        ) : item.status === 'Venue_Changed' ? (
+                                            <Tag icon={<SwapOutlined />} color="purple">Venue Changed</Tag>
+                                        ) : (
+                                            <Tag icon={<CheckCircle size={14} />} color="success">Scheduled</Tag>
+                                        )}
+                                    </div>
+
+                                    {/* Time Slot */}
+                                    <span className="text-sm text-gray-500 block">
+                                        {item.timeSlot.label}
+                                    </span>
+
+                                    {/* Room / Lab Info */}
+                                    <span className="text-sm text-gray-500 block">
+                                        {item.lectureType === 'Theory' ? 'Room No.' : 'Lab No.'}: {item.updatedRoom || item.rooms[0]?.roomCode || 'Room TBD'}
+                                    </span>
+                                </div>
+
+
+                                {/* RIGHT: Buttons Row */}
+                                <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                                    <Button type="primary">
+                                        Mark Attendance
+                                    </Button>
+
+                                    <Dropdown
+                                        overlay={
+                                            <Menu>
+                                                <Menu.Item key="1" onClick={() => updateStatus(item, "Cancelled")}>
+                                                    Cancel Lecture
+                                                </Menu.Item>
+                                                <Menu.Item key="2" onClick={() => handleChangeVenueClick()}>
+                                                    Change Venue
+                                                </Menu.Item>
+                                            </Menu>
+                                        }
+                                        trigger={['click']}
+                                    >
+                                        <Button icon={<MoreVertical size={16} />}>Manage</Button>
+                                    </Dropdown>
+                                    <ChangeVenueModal
+                                        open={isModalOpen}
+                                        onCancel={() => setIsModalOpen(false)}
+                                        onSubmit={(newRoom) => handleVenueSubmit(newRoom)}  // ✅ newRoom is defined here
+                                        currentRoom={item.rooms[0]?.roomCode}
+                                    />
+
+                                    <Button
+                                        icon={<Megaphone size={16} />}
+                                        onClick={() => console.log('Notify', item)}
+                                    >
+                                        Notify Students
+                                    </Button>
+                                </div>
+                            </div>
+                        </Card1>
+                    )
+                })
+                }
+            </Space >
+        </Card1 >
+
+
+    )
+}
+
+// const AssignmentOverview = () => <Card>
+//     <div className="mb-4">
+//         <CardTitle icon={BookOpenCheck} title="Assignment Overview" />
+//     </div>
+//     <div className="grid grid-cols-2 gap-4">
+//         <div className="p-4 bg-orange-50 rounded-lg text-center">
+//             <p className="text-3xl font-bold text-orange-600">{assignmentOverview.pendingGrading}</p>
+//             <p className="text-sm font-medium text-orange-500">Pending Grading</p>
+//         </div><div className="p-4 bg-blue-50 rounded-lg text-center">
+//             <p className="text-3xl font-bold text-blue-600">{assignmentOverview.upcomingDue}</p>
+//             <p className="text-sm font-medium text-blue-500">Upcoming Due</p>
+//         </div>
+//     </div>
+// </Card>;
+const RightPanel = () => <aside className="w-80 bg-white shadow-sm p-6 flex-shrink-0">
+    <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+    <div className="space-y-4">{quickStats.map(stat => <div key={stat.label} className="flex items-center p-3 bg-gray-50 rounded-lg">
+        <div className={`p-2 rounded-full bg-white`}>
+            <IconWrapper icon={stat.icon} className={stat.color} />
+        </div>
+        <div className="ml-3">
+            <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+            <p className="text-xs font-medium text-gray-500">{stat.label}</p>
+        </div>
+    </div>)}</div>
+    <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Notifications</h3>
+        <div className="space-y-3">{notifications.map((notif, index) => <div key={index} className="flex gap-3">
+            <div className="w-10 h-10 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center">{notif.type === 'query' && <UsersRound size={20} className="text-blue-500" />}{notif.type === 'notice' && <Megaphone size={20} className="text-purple-500" />}{notif.type === 'exam' && <CalendarDays size={20} className="text-green-500" />}</div>
+            <div>
+                <p className="text-sm text-gray-700">{notif.text}</p>
+                <p className="text-xs text-gray-400">{notif.time}</p>
+            </div>
+        </div>)}</div>
+        <button className="w-full mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-800">View All</button>
+    </div>
+</aside>;
 
 // --- VIEW COMPONENTS ---
 
 const ClassScheduleView = ({ schedule }) => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const timeSlots = ['09-10', '10-11', '11-12', '12-13', '13-14', '14-15', '15-16', '16-17'];
-    return <Card className="w-full"><div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead><tr><th className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-tl-lg">Time</th>{days.map(day => <th key={day} className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200">{day}</th>)}</tr></thead><tbody>{timeSlots.map(slot => <tr key={slot}><td className="p-3 font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200">{slot.replace('-',':00 - ')}:00</td>{days.map(day => { const lecture = schedule[day]?.find(l => l.time === slot); return <td key={`${day}-${slot}`} className="p-0 border border-gray-200 align-top">{lecture ? <div className="p-3 bg-indigo-50 text-indigo-800 h-full"><p className="font-semibold text-sm">{lecture.subject}</p></div> : <div className="p-3 h-full"></div>}</td>; })}</tr>)}</tbody></table></div></Card>;
+    return <Card className="w-full"><div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead><tr><th className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-tl-lg">Time</th>{days.map(day => <th key={day} className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200">{day}</th>)}</tr></thead><tbody>{timeSlots.map(slot => <tr key={slot}><td className="p-3 font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200">{slot.replace('-', ':00 - ')}:00</td>{days.map(day => { const lecture = schedule[day]?.find(l => l.time === slot); return <td key={`${day}-${slot}`} className="p-0 border border-gray-200 align-top">{lecture ? <div className="p-3 bg-indigo-50 text-indigo-800 h-full"><p className="font-semibold text-sm">{lecture.subject}</p></div> : <div className="p-3 h-full"></div>}</td>; })}</tr>)}</tbody></table></div></Card>;
 };
 
 const AttendanceView = ({ students: initialStudents }) => {
@@ -219,9 +431,9 @@ const AttendanceView = ({ students: initialStudents }) => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusStyles[student.status]}`}>{student.status}</span></td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <button onClick={() => markAttendance(student.id, 'Present')} className="p-2 rounded-full hover:bg-green-100 text-green-500 disabled:opacity-50" disabled={student.status==='Present'}><CheckCircle size={20} /></button>
-                                        <button onClick={() => markAttendance(student.id, 'Absent')} className="p-2 rounded-full hover:bg-red-100 text-red-500 disabled:opacity-50" disabled={student.status==='Absent'}><XCircle size={20} /></button>
-                                        <button onClick={() => markAttendance(student.id, 'Late')} className="p-2 rounded-full hover:bg-yellow-100 text-yellow-500 disabled:opacity-50" disabled={student.status==='Late'}><AlertCircle size={20} /></button>
+                                        <button onClick={() => markAttendance(student.id, 'Present')} className="p-2 rounded-full hover:bg-green-100 text-green-500 disabled:opacity-50" disabled={student.status === 'Present'}><CheckCircle size={20} /></button>
+                                        <button onClick={() => markAttendance(student.id, 'Absent')} className="p-2 rounded-full hover:bg-red-100 text-red-500 disabled:opacity-50" disabled={student.status === 'Absent'}><XCircle size={20} /></button>
+                                        <button onClick={() => markAttendance(student.id, 'Late')} className="p-2 rounded-full hover:bg-yellow-100 text-yellow-500 disabled:opacity-50" disabled={student.status === 'Late'}><AlertCircle size={20} /></button>
                                     </td>
                                 </tr>
                             ))}
@@ -286,18 +498,18 @@ const NotificationsView = ({ notifications }) => (
 
 // --- MAIN APP COMPONENT ---
 
-export default function App() {
+export default function Dashboard() {
     const [activeItem, setActiveItem] = useState('Dashboard');
 
     const renderContent = () => {
         if (activeItem === 'Dashboard') {
             return (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-6">
                         <TodaysClasses />
                     </div>
                     <div className="space-y-6">
-                        <AssignmentOverview />
+                        {/* <AssignmentOverview /> */}
                     </div>
                 </div>
             );
@@ -314,7 +526,7 @@ export default function App() {
             const students = studentData[className];
             if (students) return <AttendanceView students={students} />;
         }
-        
+
         if (activeItem === 'Announcements') {
             return <NotificationsView notifications={notifications} />;
         }
@@ -324,7 +536,7 @@ export default function App() {
 
     const getHeaderTitle = () => {
         if (activeItem === 'Dashboard') return "Welcome back, Professor!";
-        if (activeItem.includes(': ')) return active-item.replace(': ', ' - ');
+        if (activeItem.includes(': ')) return active - item.replace(': ', ' - ');
         return activeItem;
     };
 
@@ -338,7 +550,7 @@ export default function App() {
                 </div>
                 <div className="hidden lg:block"><RightPanel /></div>
             </main>
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 z-30">{[{ icon: LayoutDashboard, text: 'Dashboard' }, { icon: CalendarDays, text: 'Schedule' }, { icon: UserCheck, text: 'Attendance' }, { icon: Users, text: 'Students' }].map(item => <button key={item.text} onClick={() => setActiveItem(item.text)} className={`flex flex-col items-center justify-center w-16 h-16 rounded-lg transition-colors ${activeItem.startsWith(item.text) ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}><IconWrapper icon={item.icon} className="w-6 h-6 mb-1"/><span className="text-xs">{item.text}</span></button>)}</div>
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 z-30">{[{ icon: LayoutDashboard, text: 'Dashboard' }, { icon: CalendarDays, text: 'Schedule' }, { icon: UserCheck, text: 'Attendance' }, { icon: Users, text: 'Students' }].map(item => <button key={item.text} onClick={() => setActiveItem(item.text)} className={`flex flex-col items-center justify-center w-16 h-16 rounded-lg transition-colors ${activeItem.startsWith(item.text) ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}><IconWrapper icon={item.icon} className="w-6 h-6 mb-1" /><span className="text-xs">{item.text}</span></button>)}</div>
         </div>
     );
 }
