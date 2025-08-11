@@ -10,11 +10,11 @@ import Dashboard from './Pages/Teacher/teacherDashboard.jsx'
 import LandingPage from './Pages/Others/LandingPage.jsx'
 import StudentDashboard from './Pages/Student/studentDashboard.jsx'
 import AcademicInfoComponent from './Pages/Student/academicInfo.jsx'
-import AcademicInfoPage from './Pages/Student/academicInfo.jsx'
 import PublicRoute from './Helper/publicRoute.jsx'
 import PrivateRoute from './Helper/privateRoute.jsx'
 import { NotFoundPage } from './Pages/Others/NotFoundPage.jsx'
 import { UnauthorizedPage } from './Pages/Others/UnAuthorizedPage.jsx'
+import MyNote from './Components/MyNoteUI.jsx'
 
 const router = createBrowserRouter([
   {
@@ -43,51 +43,49 @@ const router = createBrowserRouter([
       },
       {
         element: (
-          <PrivateRoute allowedRoles={['student']}>
-            <AcademicInfoComponent/>
+          <PrivateRoute allowedRoles={['teacher']}>
+            <TimetableUploadForm />
           </PrivateRoute>
         ),
-        path: '/student/academic-info',
-
+        path: '/teacher/upload-timetable',
       },
       {
         element: (
           <PrivateRoute allowedRoles={['teacher']}>
-              <TimetableUploadForm/>
-          </PrivateRoute>
-        ),
-        path: '/teacher/upload-timetable',
-
-      },
-      {
-        element:  (
-          <PrivateRoute allowedRoles={['teacher']}>
-              <Dashboard/>
+            <Dashboard />
           </PrivateRoute>
         ),
         path: '/teacher/dashboard',
       },
       {
-        element:  (
+        element: (
           <PrivateRoute allowedRoles={['student']}>
-              <StudentDashboard/>
+            <StudentDashboard />
           </PrivateRoute>
         ),
         path: '/student/dashboard',
+        children: [
+          {
+            path: 'academic-info',
+            element: <AcademicInfoComponent />
+          },
+          {
+            path: 'mynote',
+            element: <MyNote />
+          }
+        ]
       },
       {
-        element: <UnauthorizedPage/>,
+        element: <UnauthorizedPage />,
         path: '/unauthorized',
       },
       {
-        element: <NotFoundPage/>,
+        element: <NotFoundPage />,
         path: '*',
       }
     ]
   }
 ])
-
-
 
 
 createRoot(document.getElementById('root')).render(

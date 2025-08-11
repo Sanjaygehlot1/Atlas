@@ -8,7 +8,7 @@ const router = Router();
 router.post('/auth/create-account', registerUser);
 router.post('/auth/verify',verifyUser);
 router.post('/auth/login',loginUser);
-router.get('/auth/logout',AuthMiddleware,logoutUser);
+router.post('/auth/logout',AuthMiddleware,logoutUser);
 router.get('/current-user', AuthMiddleware, getCurrentUser);
 router.put('/update-academic-info', AuthMiddleware, updateAcademicInfo);
 

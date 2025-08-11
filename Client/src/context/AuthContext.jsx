@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkUserSession = async () => {
             try {
-                const response = await AxiosInstance.get('/users/current-user');
+                const response = await AxiosInstance.get('/api/users/current-user');
                 console.log("Current user response:", response.data);
                 if (response.data.success) {
                     setUser(response.data.data || null);
@@ -30,24 +30,30 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await AxiosInstance.post('/users/auth/login', { email, password });
+            const response = await AxiosInstance.post('/api/users/auth/login', { email, password });
             console.log("Login response:", response.data);
             if (response.data.success) {
                 setUser(response.data.data.user);
             }
             return response.data;
         } catch (error) {
-           
-            throw error.response.data;
+            console.error('Login error:', error.response?.data || error.message);
+            throw error.response?.data || { message: 'Login failed' };
         }
     };
 
     const logout = async () => {
         try {
-            await AxiosInstance.post('/users/auth/logout');
+            console.log('AuthContext: Starting logout...'); // Temporary debug
+            const response = await AxiosInstance.post('/api/users/auth/logout');
+            console.log('AuthContext: Logout API response:', response); // Temporary debug
             setUser(null); 
+            console.log('AuthContext: User state cleared'); // Temporary debug
         } catch (error) {
             console.error("Logout failed:", error);
+            console.error("Logout error details:", error.response?.data); // More detailed error
+            // Even if API fails, clear the user state
+            setUser(null);
         }
     };
 

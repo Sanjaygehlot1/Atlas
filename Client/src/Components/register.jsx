@@ -38,12 +38,10 @@ const RegisterPage = () => {
       const response = await createUserAccount(values);
       message.success('Account created successfully! Please check your email for the verification code.');
       console.log('API Response:', response);
-      ;
       setCurrentStep(1);
     } catch (error) {
       console.log('API or Validation Failed:', error);
       message.error(error.message || 'An unexpected error occurred. Please try again.');
-
     } finally {
       setIsLoading(false);
     }
