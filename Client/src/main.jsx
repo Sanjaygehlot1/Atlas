@@ -16,6 +16,7 @@ import PrivateRoute from './Helper/privateRoute.jsx'
 import { NotFoundPage } from './Pages/Others/NotFoundPage.jsx'
 import { UnauthorizedPage } from './Pages/Others/UnAuthorizedPage.jsx'
 import MarkAttendancePage from './Pages/Teacher/MarkAttendance.jsx'
+import MyNote from './Components/MyNoteUI.jsx'
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,24 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
         path: '/student/dashboard',
+        children: [
+          {
+            path: 'academic-info',
+            element: <AcademicInfoComponent />
+          },
+          {
+            path: 'mynote',
+            element: <MyNote />
+          }
+        ]
+      },
+      {
+        element:  (
+          <PrivateRoute allowedRoles={['teacher']}>
+              <MarkAttendancePage/>
+          </PrivateRoute>
+        ),
+        path: '/teacher/mark-attendance',
       },
       {
         element:  (

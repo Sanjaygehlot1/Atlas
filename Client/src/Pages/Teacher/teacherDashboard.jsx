@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, BarChart3, UsersRound, BookCopy, FileClock, MoreVertical, ChevronRight, CheckCircle, XCircle, AlertCircle, PlusCircle, UserCircleIcon, X } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, MoreVertical, BookOpen } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
+import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space } from 'antd'
+import MyNoteUI from '../../Components/MyNoteUI.jsx';
 import { getCompleteTT, getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
 import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space, Typography } from 'antd'
 // --- MOCK DATA ---
@@ -69,10 +72,10 @@ const studentData = {
 
 const IconWrapper = ({ icon: Icon, className }) => <Icon className={`w-5 h-5 ${className}`} />;
 
-const SidebarItem = ({ icon, text, active, onClick, hasSubmenu, isSubmenuOpen }) => (
-    <li className={`flex items-center justify-between py-3 px-4 my-1 font-medium rounded-lg cursor-pointer transition-colors group ${active ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800' : 'hover:bg-indigo-50 text-gray-600'}`} onClick={onClick}>
-        <div className="flex items-center"><IconWrapper icon={icon} /><span className="ml-3">{text}</span></div>
-        {hasSubmenu && <ChevronRight className={`transform transition-transform duration-200 ${isSubmenuOpen ? 'rotate-90' : ''}`} size={16} />}
+const SidebarItem = ({ icon, text, active, onClick }) => (
+    <li className={`flex items-center py-3 px-4 my-1 font-medium rounded-lg cursor-pointer transition-colors group ${active ? 'bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800' : 'hover:bg-indigo-50 text-gray-600'}`} onClick={onClick}>
+        <IconWrapper icon={icon} />
+        <span className="ml-3">{text}</span>
     </li>
 );
 
@@ -133,17 +136,21 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
 
     return (
         <aside className="h-screen w-64 bg-white shadow-sm flex flex-col fixed top-0 left-0 z-20">
-            <div className="flex items-center gap-2 p-4 border-b border-gray-200"><div className="p-2 bg-indigo-600 rounded-lg"><BookOpenCheck className="w-6 h-6 text-white" /></div><h1 className="text-xl font-bold text-gray-800">Atlas</h1></div>
+            <div className="flex items-center gap-2 p-4 border-b border-gray-200">
+                <div className="p-2 bg-indigo-600 rounded-lg">
+                    <BookOpenCheck className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-xl font-bold text-gray-800">Atlas</h1>
+            </div>
             <nav className="flex-1 px-3 py-4 overflow-y-auto">
                 <ul>
-                    <SidebarItem icon={LayoutDashboard} text="Dashboard" active={activeItem === 'Dashboard'} onClick={() => { setActiveItem('Dashboard'); setOpenMenus({}); }} />
-                    <SidebarItem icon={CalendarDays} text="Class Schedule" active={activeItem.startsWith('Schedule')} onClick={() => toggleMenu('Schedule')} hasSubmenu={true} isSubmenuOpen={openMenus['Schedule']} />
-                    {openMenus['Schedule'] && renderSubMenu('Schedule', detailedScheduleData)}
-                    <SidebarItem icon={UserCheck} text="Attendance" active={activeItem.startsWith('Attendance')} onClick={() => toggleMenu('Attendance')} hasSubmenu={true} isSubmenuOpen={openMenus['Attendance']} />
-                    {openMenus['Attendance'] && renderSubMenu('Attendance', detailedScheduleData)}
-                    <SidebarItem icon={FileText} text="Assignments" active={activeItem === 'Assignments'} onClick={() => { setActiveItem('Assignments'); setOpenMenus({}); }} />
-                    <SidebarItem icon={Megaphone} text="Announcements" active={activeItem === 'Announcements'} onClick={() => { setActiveItem('Announcements'); setOpenMenus({}); }} />
-                    <SidebarItem icon={Users} text="Student List" active={activeItem === 'Student List'} onClick={() => { setActiveItem('Student List'); setOpenMenus({}); }} />
+                    <SidebarItem icon={LayoutDashboard} text="Dashboard" active={activeItem === 'Dashboard'} onClick={() => setActiveItem('Dashboard')} />
+                    <SidebarItem icon={CalendarDays} text="Class Schedule" active={activeItem === 'Schedule'} onClick={() => setActiveItem('Schedule')} />
+                    <SidebarItem icon={UserCheck} text="Attendance" active={activeItem === 'Attendance'} onClick={() => setActiveItem('Attendance')} />
+                    <SidebarItem icon={FileText} text="Assignments" active={activeItem === 'Assignments'} onClick={() => setActiveItem('Assignments')} />
+                    <SidebarItem icon={BookOpen} text="Notes" active={activeItem === 'Notes'} onClick={() => setActiveItem('Notes')} />
+                    <SidebarItem icon={Megaphone} text="Announcements" active={activeItem === 'Announcements'} onClick={() => setActiveItem('Announcements')} />
+                    <SidebarItem icon={Users} text="Student List" active={activeItem === 'Student List'} onClick={() => setActiveItem('Student List')} />
                 </ul>
             </nav>
             <div>
@@ -372,53 +379,27 @@ const TodaysClasses = () => {
     )
 }
 
-// const AssignmentOverview = () => <Card>
-//     <div className="mb-4">
-//         <CardTitle icon={BookOpenCheck} title="Assignment Overview" />
-//     </div>
-//     <div className="grid grid-cols-2 gap-4">
-//         <div className="p-4 bg-orange-50 rounded-lg text-center">
-//             <p className="text-3xl font-bold text-orange-600">{assignmentOverview.pendingGrading}</p>
-//             <p className="text-sm font-medium text-orange-500">Pending Grading</p>
-//         </div><div className="p-4 bg-blue-50 rounded-lg text-center">
-//             <p className="text-3xl font-bold text-blue-600">{assignmentOverview.upcomingDue}</p>
-//             <p className="text-sm font-medium text-blue-500">Upcoming Due</p>
-//         </div>
-//     </div>
-// </Card>;
 const RightPanel = () => <aside className="w-80 bg-white shadow-sm p-6 flex-shrink-0">
     <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
-    <div className="space-y-4">{quickStats.map(stat => <div key={stat.label} className="flex items-center p-3 bg-gray-50 rounded-lg">
-        <div className={`p-2 rounded-full bg-white`}>
-            <IconWrapper icon={stat.icon} className={stat.color} />
+    <div className="space-y-4">
+        <div className="text-center py-8 text-gray-500">
+            <p>Statistics will be loaded from the database.</p>
         </div>
-        <div className="ml-3">
-            <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-            <p className="text-xs font-medium text-gray-500">{stat.label}</p>
-        </div>
-    </div>)}</div>
+    </div>
     <div className="mt-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Notifications</h3>
-        <div className="space-y-3">{notifications.map((notif, index) => <div key={index} className="flex gap-3">
-            <div className="w-10 h-10 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center">{notif.type === 'query' && <UsersRound size={20} className="text-blue-500" />}{notif.type === 'notice' && <Megaphone size={20} className="text-purple-500" />}{notif.type === 'exam' && <CalendarDays size={20} className="text-green-500" />}</div>
-            <div>
-                <p className="text-sm text-gray-700">{notif.text}</p>
-                <p className="text-xs text-gray-400">{notif.time}</p>
-            </div>
-        </div>)}</div>
-        <button className="w-full mt-4 text-sm font-medium text-indigo-600 hover:text-indigo-800">View All</button>
+        <div className="text-center py-8 text-gray-500">
+            <p>No notifications at this time.</p>
+        </div>
     </div>
 </aside>;
 
-// --- VIEW COMPONENTS ---
-
- // Assuming you're using shadcn/ui or similar
- // adjust path
 
 
 
 
-// 'props.data' = ['CMPN', 'FE 1'] or ['IT', 'SE 2'], etc.
+
+
 const ClassScheduleView = ({ data }) => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const [filteredSchedule, setFilteredSchedule] = useState([]);
@@ -432,12 +413,11 @@ const ClassScheduleView = ({ data }) => {
                 const res = await getCompleteTT();
                 const rawData = res.data;
 
-                // Construct target year string: e.g. 'FE CMPN 1'
+               
                 const [department, classLabel] = data;
                 const targetYear = `${classLabel.split(" ")[0]} ${department} ${classLabel.split(" ")[1]} `;
-                console.log(targetYear) // e.g. 'FE 1 CMPN' or 'SE 2 IT'
+                console.log(targetYear) 
 
-                // Match documents where year contains both classLabel and department
                 const filtered = rawData.filter(item =>
                     normalize(item.year)?.includes(normalize(classLabel)) &&
                     normalize(item.year)?.includes(normalize(department))
@@ -445,7 +425,6 @@ const ClassScheduleView = ({ data }) => {
 
                 setFilteredSchedule(filtered);
 
-                // Collect all unique normalized time slots
                 const slotSet = new Set();
                 filtered.forEach(item => {
                     const time = normalize(item.timeSlot?.label);
@@ -616,22 +595,9 @@ const NotificationsView = ({ notifications }) => (
     <div className="w-full p-6 rounded-xl shadow-sm bg-gradient-to-br from-blue-500 to-indigo-600">
         <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-white">Notifications</h3>
-            <button className="text-sm font-medium text-white hover:text-indigo-200">View All</button>
         </div>
-        <div className="space-y-3">
-            {notifications.map((notif, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-white/20 rounded-lg">
-                    <div className="w-10 h-10 flex-shrink-0 rounded-full bg-white/30 flex items-center justify-center">
-                        {notif.type === 'query' && <UsersRound size={20} className="text-white" />}
-                        {notif.type === 'notice' && <Megaphone size={20} className="text-white" />}
-                        {notif.type === 'exam' && <CalendarDays size={20} className="text-white" />}
-                    </div>
-                    <div>
-                        <p className="text-sm text-white font-medium">{notif.text}</p>
-                        <p className="text-xs text-indigo-200">{notif.time}</p>
-                    </div>
-                </div>
-            ))}
+        <div className="text-center py-8 text-white">
+            <p>No notifications at this time.</p>
         </div>
     </div>
 );
@@ -641,6 +607,16 @@ const NotificationsView = ({ notifications }) => (
 
 export default function Dashboard() {
     const [activeItem, setActiveItem] = useState('Dashboard');
+    const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            // Redirect will be handled by the PrivateRoute component
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
 
     const renderContent = () => {
         if (activeItem === 'Dashboard') {
@@ -649,9 +625,15 @@ export default function Dashboard() {
                     <div className="space-y-6">
                         <TodaysClasses />
                     </div>
-                    <div className="space-y-6">
-                        {/* <AssignmentOverview /> */}
-                    </div>
+                </div>
+            );
+        }
+
+        if (activeItem === 'Schedule') {
+            return (
+                <div className="text-center py-8 text-gray-500">
+                    <h2 className="text-2xl font-bold text-gray-700">Class Schedule</h2>
+                    <p className="mt-2">Schedule data will be loaded from the database.</p>
                 </div>
             );
         }
@@ -662,14 +644,39 @@ export default function Dashboard() {
             return <ClassScheduleView data={[branch , className ]} />;
         }
 
-        if (activeItem.startsWith('Attendance: ')) {
-            const className = activeItem.replace('Attendance: ', '');
-            const students = studentData[className];
-            if (students) return <AttendanceView students={students} />;
+        if (activeItem === 'Assignments') {
+            return (
+                <div className="text-center py-8 text-gray-500">
+                    <h2 className="text-2xl font-bold text-gray-700">Assignments</h2>
+                    <p className="mt-2">Assignments feature coming soon.</p>
+                </div>
+            );
         }
 
         if (activeItem === 'Announcements') {
-            return <NotificationsView notifications={notifications} />;
+            return <NotificationsView />;
+        }
+
+        if (activeItem === 'Notes') {
+            return <MyNoteUI />;
+        }
+
+        if (activeItem === 'Student List') {
+            return (
+                <div className="text-center py-8 text-gray-500">
+                    <h2 className="text-2xl font-bold text-gray-700">Student List</h2>
+                    <p className="mt-2">Student data will be loaded from the database.</p>
+                </div>
+            );
+        }
+
+        if (activeItem === 'Settings') {
+            return (
+                <div className="text-center py-8 text-gray-500">
+                    <h2 className="text-2xl font-bold text-gray-700">Settings</h2>
+                    <p className="mt-2">Settings page coming soon.</p>
+                </div>
+            );
         }
 
         return <div className="flex items-center justify-center h-full"><div className="text-center p-8 bg-white rounded-xl shadow-sm"><h2 className="text-2xl font-bold text-gray-700">{activeItem}</h2><p className="mt-2 text-gray-500">Page not found or is under construction.</p></div></div>;
@@ -682,7 +689,7 @@ export default function Dashboard() {
 
     return (
         <div className="bg-gray-50 min-h-screen flex">
-            <div className="hidden md:block"><Sidebar activeItem={activeItem} setActiveItem={setActiveItem} /></div>
+            <div className="hidden md:block"><Sidebar activeItem={activeItem} setActiveItem={setActiveItem} onLogout={handleLogout} /></div>
             <main className="flex-1 md:ml-64 flex flex-col lg:flex-row">
                 <div className="flex-1 flex flex-col">
                     <Header title={getHeaderTitle()} />
@@ -690,7 +697,7 @@ export default function Dashboard() {
                 </div>
                 <div className="hidden lg:block"><RightPanel /></div>
             </main>
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 z-30">{[{ icon: LayoutDashboard, text: 'Dashboard' }, { icon: CalendarDays, text: 'Schedule' }, { icon: UserCheck, text: 'Attendance' }, { icon: Users, text: 'Students' }].map(item => <button key={item.text} onClick={() => setActiveItem(item.text)} className={`flex flex-col items-center justify-center w-16 h-16 rounded-lg transition-colors ${activeItem.startsWith(item.text) ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}><IconWrapper icon={item.icon} className="w-6 h-6 mb-1" /><span className="text-xs">{item.text}</span></button>)}</div>
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-2 z-30">{[{ icon: LayoutDashboard, text: 'Dashboard' }, { icon: CalendarDays, text: 'Schedule' }, { icon: UserCheck, text: 'Attendance' }, { icon: BookOpen, text: 'Notes' }, { icon: Users, text: 'Students' }].map(item => <button key={item.text} onClick={() => setActiveItem(item.text)} className={`flex flex-col items-center justify-center w-16 h-16 rounded-lg transition-colors ${activeItem.startsWith(item.text) ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}><IconWrapper icon={item.icon} className="w-6 h-6 mb-1" /><span className="text-xs">{item.text}</span></button>)}</div>
         </div>
     );
 }

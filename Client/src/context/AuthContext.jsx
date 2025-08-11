@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkUserSession = async () => {
             try {
-                const response = await AxiosInstance.get('/users/current-user');
+                const response = await AxiosInstance.get('/api/users/current-user');
                 console.log("Current user response:", response.data);
                 if (response.data.success) {
                     setUser(response.data.data || null);
@@ -30,15 +30,15 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await AxiosInstance.post('/users/auth/login', { email, password });
+            const response = await AxiosInstance.post('/api/users/auth/login', { email, password });
             console.log("Login response:", response.data);
             if (response.data.success) {
                 setUser(response.data.data.user);
             }
             return response.data;
         } catch (error) {
-           
-            throw error.response.data;
+            console.error('Login error:', error.response?.data || error.message);
+            throw error.response?.data || { message: 'Login failed' };
         }
     };
 
@@ -46,8 +46,11 @@ export const AuthProvider = ({ children }) => {
         try {
             await AxiosInstance.get('/users/auth/logout');
             setUser(null); 
+            console.log('AuthContext: User state cleared'); 
         } catch (error) {
             console.error("Logout failed:", error);
+            console.error("Logout error details:", error.response?.data);
+            setUser(null);
         }
     };
 

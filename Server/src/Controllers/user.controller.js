@@ -97,9 +97,17 @@ const verifyUser = AsyncHandler(async (req, res) => {
 const loginUser = AsyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        throw new ApiError(400, "Email and password are required");
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
         throw new ApiError(404, "User with that email does not exist");
+    }
+
+    if (!user.isVerified) {
+        throw new ApiError(401, "Please verify your email before logging in");
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
