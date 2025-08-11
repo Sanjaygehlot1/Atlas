@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons CDN for icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3/dist/phosphor.js"></script>
+    <!-- Link to your custom CSS file -->
+    <link rel="stylesheet" href="att.css">
+</head>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen p-4">
+    <!-- Main container card for the attendance form -->
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-6xl w-full border border-gray-300 custom-form-border-top mb-8">
+        <h2 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Student Attendance</h2>
+
+        <!-- Using ul/li structure instead of form -->
+        <!-- Added a custom class for styling -->
+        <ul class="main-form-list grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Select Year Dropdown -->
+            <li>
+                <label for="year" class="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
+                <select id="year" name="year" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-base text-gray-900 bg-gray-50">
+                    <option value="">-- Select Year --</option>
+                    <option value="FE">FE</option>
+                    <option value="SE">SE</option>
+                    <option value="TE">TE</option>
+                    <option value="BE">BE</option>
+                </select>
+            </li>
+
+            <!-- Select Branch Dropdown -->
+            <li>
+                <label for="branch" class="block text-sm font-medium text-gray-700 mb-2">Select Branch</label>
+                <select id="branch" name="branch" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-base text-gray-900 bg-gray-50">
+                    <option value="">-- Select Branch --</option>
+                    <option value="INFT">INFT</option>
+                    <option value="CS">CS</option>
+                    <option value="EXTC">EXTC</option>
+                    <option value="ELECTRICAL">ELECTRICAL</option>
+                    <option value="ECS">ECS</option>
+                </select>
+            </li>
+
+            <!-- Select Class Dropdown -->
+            <li>
+                <label for="class" class="block text-sm font-medium text-gray-700 mb-2">Select Class</label>
+                <select id="class" name="class" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-base text-gray-900 bg-gray-50">
+                    <option value="">-- Select Class --</option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                </select>
+            </li>
+
+            <!-- Get Student List Button -->
+            <li class="col-span-1">
+                <button id="getStudentListBtn" type="button" class="w-auto bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold text-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out whitespace-nowrap">
+                    Get Student List
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Attendance Marking Panel (Initially Hidden) -->
+    <div id="attendancePanel" class="bg-white p-8 rounded-xl shadow-lg max-w-6xl w-full border border-gray-300 custom-form-border-top mt-8 hidden">
+        <h2 id="attendancePanelTitle" class="text-2xl font-semibold text-gray-800 mb-6">Attendance for [Class] [Branch] - [Year]</h2>
+
+        <!-- Date and Time Inputs -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 items-center">
+            <div>
+                <label for="attendanceDate" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <div class="relative">
+                    <input type="date" id="attendanceDate" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-gray-50">
+                    <i class="ph-light ph-calendar absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+            <div>
+                <label for="startTime" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                <div class="relative">
+                    <input type="time" id="startTime" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-gray-50">
+                    <i class="ph-light ph-clock absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+            <div>
+                <label for="endTime" class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+                <div class="relative">
+                    <input type="time" id="endTime" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-gray-50">
+                    <i class="ph-light ph-clock absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-6">Session: class for on <span id="sessionDateDisplay" class="font-semibold">April 12, 2025</span></p>
+
+        <!-- Mark All Present & Save Changes -->
+        <div class="flex justify-between items-center mb-6">
+            <label class="flex items-center space-x-2 text-gray-700">
+                <input type="checkbox" id="markAllPresent" class="form-checkbox h-5 w-5 text-blue-600 rounded-md border-gray-300 focus:ring-blue-500">
+                <span class="text-base font-medium">Mark All Present</span>
+            </label>
+            <button id="saveChangesBtn" type="button" class="bg-blue-600 text-white py-2 px-5 rounded-lg font-semibold shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
+                Save Changes
+            </button>
+        </div>
+
+        <!-- Student List Header -->
+        <div class="grid grid-cols-3 gap-4 py-3 px-4 bg-gray-50 font-semibold text-gray-700 border-b border-gray-200 rounded-t-lg">
+            <div>Student</div>
+            <div>Status</div>
+            <div>Actions</div>
+        </div>
+
+        <!-- Student List (Dynamic Content) -->
+        <div id="studentListContainer" class="divide-y divide-gray-200">
+            <!-- Student rows will be injected here by JavaScript -->
+        </div>
+
+        <!-- New Attendance Taken / Go Back Button -->
+        <div class="mt-8 text-center">
+            <button id="attendanceTakenGoBackBtn" type="button" class="bg-gray-500 text-white py-2 px-5 rounded-lg font-semibold shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out">
+                Attendance Taken / Go Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Link to your JavaScript file -->
+    <script src="att.js"></script>
+</body>
+</html>
