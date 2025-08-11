@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, BarChart3, UsersRound, BookCopy, FileClock, MoreVertical, ChevronRight, CheckCircle, XCircle, AlertCircle, PlusCircle, UserCircleIcon, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
-import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space } from 'antd'
+import { getCompleteTT, getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
+import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space, Typography } from 'antd'
 // --- MOCK DATA ---
-
+const { Text } = Typography;
 import { UserSwitchOutlined, SwapOutlined, CompressOutlined } from '@ant-design/icons';
 import ChangeVenueModal from '../../Components/changeVenue.jsx';
+import { useNavigate } from 'react-router';
+
+
 
 
 const assignmentOverview = { pendingGrading: 12, upcomingDue: 5 };
@@ -34,6 +37,10 @@ const detailedScheduleData = {
     'ECS': { 'TE 1': { 'Monday': [], 'Tuesday': [], 'Wednesday': [], 'Thursday': [], 'Friday': [] } },
     'EXTC': { 'BE 2': { 'Monday': [], 'Tuesday': [], 'Wednesday': [], 'Thursday': [], 'Friday': [] } },
 };
+
+
+
+
 
 const studentData = {
     'CMPN - FE 1': [
@@ -69,16 +76,23 @@ const SidebarItem = ({ icon, text, active, onClick, hasSubmenu, isSubmenuOpen })
     </li>
 );
 
-const UserProfile = () => (
-    <div className="flex items-center gap-3 p-3 border-t border-gray-200">
-        <img src="https://placehold.co/40x40/E8E8E8/4a4a4a?text=P" alt="Professor" className="w-10 h-10 rounded-full" />
-        <div className="flex-1"><h4 className="font-semibold text-sm text-gray-800">Prof. Eleanor</h4><p className="text-xs text-gray-500">eleanor.v@school.edu</p></div>
-        <MoreVertical size={20} className="text-gray-500" />
-    </div>
-);
+const UserProfile = () => {
+
+    const { user } = useAuth();
+
+
+    return (
+        <div className="flex items-center gap-3 p-3 border-t border-gray-200">
+            <img src={`https://placehold.co/40x40/E8E8E8/4a4a4a?text=${user.name[0]}`} alt="Professor" className="w-10 h-10 rounded-full" />
+            <div className="flex-1"><h4 className="font-semibold text-sm text-gray-800">Prof. {user.name}</h4><p className="text-xs text-gray-500">{user.email}</p></div>
+            <MoreVertical size={20} className="text-gray-500" />
+        </div>
+    )
+}
 
 const Sidebar = ({ activeItem, setActiveItem }) => {
-    const [openMenus, setOpenMenus] = useState({}); // Handles multiple dropdowns
+    const [openMenus, setOpenMenus] = useState({});
+    const { logout } = useAuth() // Handles multiple dropdowns
 
     const toggleMenu = (menu) => {
         setOpenMenus(prev => ({ ...prev, [menu]: !prev[menu], [`${menu}Branch`]: null }));
@@ -135,7 +149,7 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
             <div>
                 <ul>
                     <SidebarItem icon={Settings} text="Settings" active={activeItem === 'Settings'} onClick={() => setActiveItem('Settings')} />
-                    <SidebarItem icon={LogOut} text="Logout" />
+                    <SidebarItem icon={LogOut} text="Logout" onClick={() => logout()} />
                 </ul>
             </div>
             <UserProfile />
@@ -162,16 +176,7 @@ const CardTitle = ({ icon: Icon, title }) => <div className="flex items-center g
 // --- DASHBOARD & GENERIC WIDGETS ---
 
 
-const ManageMenu = ({ onCancel, onVenueChange }) => (
-    <Menu>
-        <Menu.Item key="1" onClick={onCancel}>
-            Cancel Lecture
-        </Menu.Item>
-        <Menu.Item key="2" onClick={onVenueChange}>
-            Change Venue
-        </Menu.Item>
-    </Menu>
-);
+
 
 const TodaysClasses = () => {
 
@@ -179,13 +184,14 @@ const TodaysClasses = () => {
     const { message } = App.useApp();
     const [todaysClasses, setTodaysClasses] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    
-
+    const [selectedLecture, setSelectedLecture] = useState(null);
+    const navigate = useNavigate();
     useEffect(() => {
         if (todaysClasses.length === 0) {
             const getTodaysClasses = async () => {
+
                 try {
-                    const response = await getTeacherSchedule("68860d94cf2bfd5edb077450");
+                    const response = await getTeacherSchedule(user?._id);
                     setTodaysClasses(response);
                     console.log(response);
                 } catch (error) {
@@ -197,20 +203,33 @@ const TodaysClasses = () => {
         }
     }, [user, todaysClasses])
 
-    const handleChangeVenueClick = () => {
-        setIsModalOpen(true);
-        console.log(isModalOpen)
+
+
+    const handleOpenChangeVenueModal = (lecture) => {
+        setSelectedLecture(lecture);
+        console.log(lecture) // 1. Set the lecture you want to edit
+        setIsModalOpen(true);       // 2. Open the modal
     };
+
+    const markStudentAttendance = (lecture) => {
+        navigate('/teacher/mark-attendance')
+
+    }
 
 
     const updateStatus = async (lecture, status, updatedRoom) => {
         try {
             if (lecture && status) {
+                console.log("Updating lecture:", lecture._id, "to status:", status, "with new room:", updatedRoom);
                 console.log(lecture)
-                const response = await updateLectureStatus(lecture._id, status,updatedRoom);
+                const response = await updateLectureStatus(lecture._id, status, updatedRoom);
+                console.log(lecture, status, updatedRoom)
                 console.log(response)
+                const res = await getTeacherSchedule(user?._id);
+                setTodaysClasses(res);
+
                 if (status === "Venue_Changed") {
-                    message.success(`${lecture.subjectName} lecture has been shifted to ${response.updatedRoom} for today.`);
+                    message.success(`${lecture.subjectName} lecture has been shifted to ${updatedRoom} for today.`);
                 } else {
                     message.success(`${lecture.subjectName} lecture has been ${status.toLowerCase()} for today.`);
                 }
@@ -237,9 +256,9 @@ const TodaysClasses = () => {
 
                     const handleVenueSubmit = (updatedRoom) => {
                         setIsModalOpen(false);
-                        updateStatus(item, "Venue_Changed", updatedRoom);
-                        console.log("Changing room to:", updatedRoom, "for lecture:", item._id);
-                        message.success(`Lecture room changed to ${updatedRoom}`);
+                        updateStatus(selectedLecture, "Venue_Changed", updatedRoom);
+                        console.log("Changing room to:", updatedRoom, "for lecture:", selectedLecture._id);
+
                     };
                     return (
                         <Card1
@@ -255,9 +274,18 @@ const TodaysClasses = () => {
                                 {/* LEFT: Lecture Info */}
                                 <div className="text-left w-full md:w-auto">
                                     {/* Subject Name */}
-                                    <strong className="text-base md:text-lg block text-gray-800">
-                                        {item.subjectName}
-                                    </strong>
+                                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
+                                        <strong className="text-base md:text-lg text-gray-800">
+                                            {item.subjectName}
+                                        </strong>
+                                        <span className="text-sm md:text-base text-gray-600">|</span>
+                                        <span className="bg-gray-200 text-gray-800 text-sm md:text-base px-2 py-1 rounded-xl">
+                                            {item.class}
+                                        </span>
+
+                                    </div>
+
+
 
                                     {/* Status Tag */}
                                     <div className="mt-1">
@@ -271,10 +299,10 @@ const TodaysClasses = () => {
                                             <Tag className="inline-flex items-center gap-1" icon={<Clock size={14} />} color="cyan">Rescheduled</Tag>
                                         ) : item.status === 'Replaced' ? (
                                             <Tag icon={<SwapOutlined />} color="purple">Replaced</Tag>
-                                        ) : item.status === 'Venue_Changed' ? (
+                                        ) : (item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) ? (
                                             <Tag icon={<SwapOutlined />} color="purple">Venue Changed</Tag>
                                         ) : (
-                                            <Tag icon={<CheckCircle size={14} />} color="success">Scheduled</Tag>
+                                            <Tag className="inline-flex items-center gap-1" icon={<CheckCircle size={14} />} color="success">Scheduled</Tag>
                                         )}
                                     </div>
 
@@ -284,25 +312,29 @@ const TodaysClasses = () => {
                                     </span>
 
                                     {/* Room / Lab Info */}
-                                    <span className="text-sm text-gray-500 block">
-                                        {item.lectureType === 'Theory' ? 'Room No.' : 'Lab No.'}: {item.updatedRoom || item.rooms[0]?.roomCode || 'Room TBD'}
+                                    {item.lectureType === 'Theory' ? 'Room :' : 'Lab :'}
+                                    <span style={{ textDecoration: (item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) ? 'line-through' : 'none', marginRight: item.status === 'Venue_Changed' ? '8px' : '0' }}>
+
+                                        {`  ${item.rooms[0]?.roomCode || 'N/A'}`}
                                     </span>
+                                    {(item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) && <Text strong>{item.updatedRoom}</Text>}
+
                                 </div>
 
 
                                 {/* RIGHT: Buttons Row */}
                                 <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                                    <Button type="primary">
+                                    <Button type="primary" onClick={() => markStudentAttendance(item)}>
                                         Mark Attendance
                                     </Button>
 
                                     <Dropdown
                                         overlay={
                                             <Menu>
-                                                <Menu.Item key="1" onClick={() => updateStatus(item, "Cancelled")}>
-                                                    Cancel Lecture
+                                                <Menu.Item key="1" onClick={() => updateStatus(item, item.status === 'Cancelled' ? 'Scheduled' : 'Cancelled')}>
+                                                    {item.status === 'Cancelled' ? "Live Lecture" : "Cancel Lecture"}
                                                 </Menu.Item>
-                                                <Menu.Item key="2" onClick={() => handleChangeVenueClick()}>
+                                                <Menu.Item key="2" onClick={() => handleOpenChangeVenueModal(item)}>
                                                     Change Venue
                                                 </Menu.Item>
                                             </Menu>
@@ -313,9 +345,12 @@ const TodaysClasses = () => {
                                     </Dropdown>
                                     <ChangeVenueModal
                                         open={isModalOpen}
-                                        onCancel={() => setIsModalOpen(false)}
-                                        onSubmit={(newRoom) => handleVenueSubmit(newRoom)}  // ✅ newRoom is defined here
-                                        currentRoom={item.rooms[0]?.roomCode}
+                                        onCancel={() => {
+                                            setIsModalOpen(false);
+                                            setSelectedLecture(null);
+                                        }}
+                                        onSubmit={handleVenueSubmit}
+                                        currentRoom={selectedLecture?.rooms[0]?.roomCode}
                                     />
 
                                     <Button
@@ -377,11 +412,117 @@ const RightPanel = () => <aside className="w-80 bg-white shadow-sm p-6 flex-shri
 
 // --- VIEW COMPONENTS ---
 
-const ClassScheduleView = ({ schedule }) => {
+ // Assuming you're using shadcn/ui or similar
+ // adjust path
+
+
+
+
+// 'props.data' = ['CMPN', 'FE 1'] or ['IT', 'SE 2'], etc.
+const ClassScheduleView = ({ data }) => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-    const timeSlots = ['09-10', '10-11', '11-12', '12-13', '13-14', '14-15', '15-16', '16-17'];
-    return <Card className="w-full"><div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead><tr><th className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-tl-lg">Time</th>{days.map(day => <th key={day} className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200">{day}</th>)}</tr></thead><tbody>{timeSlots.map(slot => <tr key={slot}><td className="p-3 font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200">{slot.replace('-', ':00 - ')}:00</td>{days.map(day => { const lecture = schedule[day]?.find(l => l.time === slot); return <td key={`${day}-${slot}`} className="p-0 border border-gray-200 align-top">{lecture ? <div className="p-3 bg-indigo-50 text-indigo-800 h-full"><p className="font-semibold text-sm">{lecture.subject}</p></div> : <div className="p-3 h-full"></div>}</td>; })}</tr>)}</tbody></table></div></Card>;
+    const [filteredSchedule, setFilteredSchedule] = useState([]);
+    const [timeSlots, setTimeSlots] = useState([]);
+
+    const normalize = str => str?.trim().toLowerCase();
+
+    useEffect(() => {
+        const fetchSchedule = async () => {
+            try {
+                const res = await getCompleteTT();
+                const rawData = res.data;
+
+                // Construct target year string: e.g. 'FE CMPN 1'
+                const [department, classLabel] = data;
+                const targetYear = `${classLabel.split(" ")[0]} ${department} ${classLabel.split(" ")[1]} `;
+                console.log(targetYear) // e.g. 'FE 1 CMPN' or 'SE 2 IT'
+
+                // Match documents where year contains both classLabel and department
+                const filtered = rawData.filter(item =>
+                    normalize(item.year)?.includes(normalize(classLabel)) &&
+                    normalize(item.year)?.includes(normalize(department))
+                );
+
+                setFilteredSchedule(filtered);
+
+                // Collect all unique normalized time slots
+                const slotSet = new Set();
+                filtered.forEach(item => {
+                    const time = normalize(item.timeSlot?.label);
+                    if (time) slotSet.add(time);
+                });
+
+                const sortedSlots = Array.from(slotSet).sort();
+                setTimeSlots(sortedSlots);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchSchedule();
+    }, [data]);
+
+    return (
+        <Card className="w-full">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-tl-lg">
+                                Time
+                            </th>
+                            {days.map(day => (
+                                <th key={day} className="p-3 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200">
+                                    {day}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {timeSlots.map(time => (
+                            <tr key={time}>
+                                <td className="p-3 font-mono text-xs text-gray-600 bg-gray-50 border border-gray-200">
+                                    {time}
+                                </td>
+                                {days.map(day => {
+                                    const lecture = filteredSchedule.find(
+                                        lec =>
+                                            normalize(lec.timeSlot?.label) === time &&
+                                            lec.day === day
+                                    );
+
+                                    return (
+                                        <td key={`${day}-${time}`} className="p-0 border border-gray-200 align-top">
+                                            {lecture ? (
+                                                <div className="p-3 bg-indigo-50 text-indigo-800 h-full">
+                                                    <p className="font-semibold text-sm">{lecture.subjectName}</p>
+                                                    <p className="text-xs text-gray-500">{lecture.lectureType}</p>
+                                                    <p className="text-xs">{lecture.faculty?.[0]?.name || 'TBD'}</p>
+                                                    <p className="text-[10px] text-gray-400">
+                                                        {lecture.rooms?.[0]?.roomCode?.[0] || 'Room N/A'}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="p-3 h-full" />
+                                            )}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
+    );
 };
+
+
+
+
+
+
+
 
 const AttendanceView = ({ students: initialStudents }) => {
     const [students, setStudents] = useState(initialStudents);
@@ -517,8 +658,8 @@ export default function Dashboard() {
 
         if (activeItem.startsWith('Schedule: ')) {
             const [branch, className] = activeItem.replace('Schedule: ', '').split(' - ');
-            const schedule = detailedScheduleData[branch]?.[className];
-            if (schedule) return <ClassScheduleView schedule={schedule} />;
+            console.log(activeItem,branch,className)
+            return <ClassScheduleView data={[branch , className ]} />;
         }
 
         if (activeItem.startsWith('Attendance: ')) {
@@ -536,8 +677,7 @@ export default function Dashboard() {
 
     const getHeaderTitle = () => {
         if (activeItem === 'Dashboard') return "Welcome back, Professor!";
-        if (activeItem.includes(': ')) return active - item.replace(': ', ' - ');
-        return activeItem;
+
     };
 
     return (

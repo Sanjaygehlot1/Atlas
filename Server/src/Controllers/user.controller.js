@@ -124,6 +124,8 @@ const logoutUser = AsyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
+
+
 const updateAcademicInfo = AsyncHandler(async (req, res) => {
     const { year, department, rollNo, studentClass, dob, gender,contactNumber } = req.body;
 

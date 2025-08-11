@@ -27,6 +27,7 @@
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.3.93",
     "prettier": "^3.6.2",
+    "socket.io": "^4.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

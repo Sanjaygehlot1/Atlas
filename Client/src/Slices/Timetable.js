@@ -77,7 +77,7 @@ export const getTeacherSchedule = async (facultyId) => {
 
 
         const exceptionsMap = new Map(
-            excepRes.data.data.map(exception => [exception.timetableEntry._id, { status: exception.status, updatedRoom: exception.updatedRoom }])
+            excepRes.data.data.map(exception => [exception.timetableEntry?._id, { status: exception.status, updatedRoom: exception.updatedRoom }])
         );
 
         console.log(exceptionsMap);
@@ -113,6 +113,18 @@ export const updateLectureStatus = async (lectureId, status,updatedRoom) => {
     }
     try {
         const res = await AxiosInstance.patch(`timetable/${lectureId}/status`, { status ,updatedRoom});
+        console.log('Cancel response:', res);
+        console.log(res.data);
+        return res.data;
+    } catch (error) {
+        console.error('Error canceling lecture:', error);
+        throw error;
+    }
+}
+export const getCompleteTT = async () => {
+    
+    try {
+        const res = await AxiosInstance.get(`timetable/get-complete-tt`);
         console.log('Cancel response:', res);
         console.log(res.data);
         return res.data;

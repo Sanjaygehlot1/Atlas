@@ -31,7 +31,7 @@ const timetableSchema = new Schema({
   }],
   lectureType: {
     type: String,
-    enum: ['Theory', 'Lab', 'Project', 'Seminar', 'Elective', 'Break'],
+    enum: ['Theory', 'Lab', 'Project', 'Seminar', 'Elective', 'Break','Other'],
     default: 'Theory',
   },
   class: { 
@@ -40,8 +40,7 @@ const timetableSchema = new Schema({
   },
   entryHash: { 
     type: String,
-    required: true,
-    unique: true 
+    required: true, 
   },
 }, { timestamps: true });
 
