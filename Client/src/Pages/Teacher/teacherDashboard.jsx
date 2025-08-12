@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, MoreVertical, BookOpen } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, MoreVertical, BookOpen, BookCopy, FileClock, UsersRound, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
-import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space } from 'antd'
+import { getTeacherSchedule, updateLectureStatus, getCompleteTT } from '../../Slices/Timetable';
+import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space,Typography } from 'antd'
 import MyNoteUI from '../../Components/MyNoteUI.jsx';
-import { getCompleteTT, getTeacherSchedule, updateLectureStatus } from '../../Slices/Timetable';
-import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space, Typography } from 'antd'
-// --- MOCK DATA ---
+
 const { Text } = Typography;
-import { UserSwitchOutlined, SwapOutlined, CompressOutlined } from '@ant-design/icons';
+import { UserSwitchOutlined, SwapOutlined, CompressOutlined,  } from '@ant-design/icons';
 import ChangeVenueModal from '../../Components/changeVenue.jsx';
 import { useNavigate } from 'react-router';
 
@@ -82,6 +80,7 @@ const SidebarItem = ({ icon, text, active, onClick }) => (
 const UserProfile = () => {
 
     const { user } = useAuth();
+    console.log(user)
 
 
     return (
@@ -629,14 +628,14 @@ export default function Dashboard() {
             );
         }
 
-        if (activeItem === 'Schedule') {
-            return (
-                <div className="text-center py-8 text-gray-500">
-                    <h2 className="text-2xl font-bold text-gray-700">Class Schedule</h2>
-                    <p className="mt-2">Schedule data will be loaded from the database.</p>
-                </div>
-            );
-        }
+        // if (activeItem === 'Schedule') {
+        //     return (
+        //         <div className="text-center py-8 text-gray-500">
+        //             <h2 className="text-2xl font-bold text-gray-700">Class Schedule</h2>
+        //             <p className="mt-2">Schedule data will be loaded from the database.</p>
+        //         </div>
+        //     );
+        // }
 
         if (activeItem.startsWith('Schedule: ')) {
             const [branch, className] = activeItem.replace('Schedule: ', '').split(' - ');

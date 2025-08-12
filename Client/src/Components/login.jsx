@@ -70,6 +70,7 @@ const LoginComponent = () => {
       }
     }
   }
+  console.log(user)
 }, [user, isLoading, navigate]);
 
 

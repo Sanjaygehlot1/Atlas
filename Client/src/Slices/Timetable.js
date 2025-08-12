@@ -6,9 +6,9 @@ export const fetchTimeTable = async (className) => {
         throw new Error('Class name is required');
     }
     try {
-        const res = await AxiosInstance.post('/api/timetable/get-timetable', { className });
+        const res = await AxiosInstance.post('/timetable/get-timetable', { className });
 
-        const excepRes = await AxiosInstance.post('/api/timetable/get-exceptional-timetable', { className });
+        const excepRes = await AxiosInstance.post('/timetable/get-exceptional-timetable', { className });
         console.log(excepRes.data);
 
 
@@ -54,7 +54,7 @@ export const uploadTimetable = async (data) => {
     console.log(data);
 
     try {
-        const res = await AxiosInstance.post('/api/timetable/upload', data);
+        const res = await AxiosInstance.post('/timetable/upload', data);
         console.log('Upload response:', res);
         console.log(res.data);
         return res.data;
@@ -67,9 +67,9 @@ export const uploadTimetable = async (data) => {
 
 export const getTeacherSchedule = async (facultyId) => {
     try {
-        const res = await AxiosInstance.get('/api/timetable/get-teacher-schedule');
+        const res = await AxiosInstance.get('/timetable/get-teacher-schedule');
         console.log(res.data);
-        const excepRes = await AxiosInstance.post('/api/timetable/get-faculty-exceptional-timetable', { facultyId });
+        const excepRes = await AxiosInstance.post('/timetable/get-faculty-exceptional-timetable', { facultyId });
         console.log(excepRes.data);
 
 
@@ -112,7 +112,7 @@ export const updateLectureStatus = async (lectureId, status,updatedRoom) => {
         throw new Error('Lecture ID is required');
     }
     try {
-        const res = await AxiosInstance.patch(`/api/timetable/${lectureId}/status`, { status ,updatedRoom});
+        const res = await AxiosInstance.patch(`/timetable/${lectureId}/status`, { status ,updatedRoom});
         console.log('Cancel response:', res);
         console.log(res.data);
         return res.data;
@@ -124,7 +124,7 @@ export const updateLectureStatus = async (lectureId, status,updatedRoom) => {
 export const getCompleteTT = async () => {
     
     try {
-        const res = await AxiosInstance.get(`timetable/get-complete-tt`);
+        const res = await AxiosInstance.get(`/timetable/get-complete-tt`);
         console.log('Cancel response:', res);
         console.log(res.data);
         return res.data;
