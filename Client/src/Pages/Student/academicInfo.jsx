@@ -82,7 +82,7 @@ const AcademicInfoComponent = () => {
             await updateAcademics(finalData);
 
             message.success('Your details have been saved successfully!');
-            navigate('/student/dashbaord');
+            navigate('/student/dashboard');
         } catch (error) {
             console.error('Failed to update academic info:', error);
             message.error(error.response?.data?.message || 'Failed to save details. Please try again.');

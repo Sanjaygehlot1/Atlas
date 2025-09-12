@@ -101,16 +101,48 @@ const NotesDetailView = ({ subject, onBack }) => {
               <h3 className="text-lg font-semibold text-gray-800">{note.title}</h3>
               <p className="text-sm text-gray-600 mt-1">{note.description || note.topic}</p>
               <p className="text-xs text-gray-400 mt-2">Created: {new Date(note.createdAt).toLocaleDateString()}</p>
-              {note.url && (
-                <a 
-                  href={note.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm mt-2 inline-block bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition duration-200"
-                >
-                  📖 View Note File
-                </a>
-              )}
+
+
+
+              {note.url && (() => {
+                const docExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
+                const imgExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'];
+                const urlLower = note.url.toLowerCase();
+                if (docExts.some(ext => urlLower.endsWith(ext))) {
+                  return (
+                    <a
+                      href={`https://docs.google.com/viewer?url=${encodeURIComponent(note.url)}&embedded=true`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-sm mt-2 inline-block bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition duration-200"
+                    >
+                      📖 View Note File
+                    </a>
+                  );
+                } else if (imgExts.some(ext => urlLower.endsWith(ext))) {
+                  return (
+                    <a
+                      href={note.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-sm mt-2 inline-block bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition duration-200"
+                    >
+                      �️ View Image
+                    </a>
+                  );
+                } else {
+                  return (
+                    <a
+                      href={note.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-sm mt-2 inline-block bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition duration-200"
+                    >
+                      📁 View File
+                    </a>
+                  );
+                }
+              })()}
             </div>
           ))}
         </div>

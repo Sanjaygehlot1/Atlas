@@ -1,4 +1,3 @@
-
 import  { createContext, useState, useContext, useEffect } from 'react';
 import { AxiosInstance } from '../Axios/AxiosInstance';
 
@@ -12,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkUserSession = async () => {
             try {
-                const response = await AxiosInstance.get('/users/current-user');
+                const response = await AxiosInstance.get('/api/users/current-user');
                 console.log("Current user response:", response.data);
                 if (response.data.success) {
                     setUser(response.data.data || null);
@@ -30,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await AxiosInstance.post('/users/auth/login', { email, password });
+            const response = await AxiosInstance.post('/api/users/auth/login', { email, password });
             console.log("Login response:", response.data);
             if (response.data.success) {
                 setUser(response.data.data.user);
