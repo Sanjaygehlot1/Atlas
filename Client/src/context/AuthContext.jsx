@@ -17,7 +17,11 @@ export const AuthProvider = ({ children }) => {
                     setUser(response.data.data || null);
                 }
             } catch (error) {
-                console.log("No active session found.");
+                if (error.response?.status === 401) {
+                    console.log("No active session found - user not logged in.");
+                } else {
+                    console.error("Error checking user session:", error.message);
+                }
                 setUser(null);
             } finally {
                 setIsLoading(false);
@@ -43,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await AxiosInstance.get('/users/auth/logout');
+            await AxiosInstance.post('/api/users/auth/logout');
             setUser(null); 
             console.log('AuthContext: User state cleared'); 
         } catch (error) {

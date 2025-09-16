@@ -209,7 +209,7 @@ const StudentDashboard = () => {
                         <Spin spinning={isLoading} tip="Loading Dashboard...">
                             <Row gutter={[24, 24]}>
                                 <Col xs={24} lg={14}>
-                                    <Card title={`Today's Schedule: ${today}`} bordered={false} style={{ borderRadius: '12px' }}>
+                                    <Card title={`Today's Schedule: ${today}`} variant="borderless" style={{ borderRadius: '12px' }}>
                                         <Timeline mode="left">
                                             {todaysTimetable.map(renderTimelineItem)}
                                         </Timeline>
@@ -217,7 +217,7 @@ const StudentDashboard = () => {
                                 </Col>
 
                                 <Col xs={24} lg={10}>
-                                    <Card title="Overall Attendance" bordered={false} style={{ borderRadius: '12px' }}>
+                                    <Card title="Overall Attendance" variant="borderless" style={{ borderRadius: '12px' }}>
                                         <div style={{ height: 250, position: 'relative' }}>
                                             <ResponsiveContainer>
                                                 <PieChart>
@@ -236,14 +236,14 @@ const StudentDashboard = () => {
                                             </div>
                                         </div>
                                     </Card>
-                                    <Card title="Quick Stats" style={{ marginTop: '24px', borderRadius: '12px' }} bordered={false}>
+                                    <Card title="Quick Stats" style={{ marginTop: '24px', borderRadius: '12px' }} variant="borderless">
                                         <Row gutter={16}>
                                             <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Attendance" value={quickStats.overallAttendance} suffix="%" /></Col>
                                             <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Assignments" value={quickStats.upcomingAssignments} /></Col>
                                             <Col span={8} style={{ textAlign: 'center' }}><Statistic title="Subjects" value={quickStats.subjectsEnrolled} /></Col>
                                         </Row>
                                     </Card>
-                                    <Card title="Recent Announcements" style={{ marginTop: '24px', borderRadius: '12px' }} bordered={false}>
+                                    <Card title="Recent Announcements" style={{ marginTop: '24px', borderRadius: '12px' }} variant="borderless">
                                         <List
                                             itemLayout="horizontal"
                                             dataSource={recentAnnouncements}
