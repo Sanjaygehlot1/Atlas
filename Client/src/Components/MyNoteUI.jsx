@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { fetchNotesForSubjectAndUser, uploadNote } from '../Axios/notesApi';
-import { fetchUserSubjects } from '../Axios/subjectsApi';
+import { fetchNotesForSubjectAndUser, uploadNote } from '../Slices/notesSlice';
+import { fetchUserSubjects } from '../Slices/subjectsSlice';
 import { useAuth } from '../context/AuthContext';
 import getUserClass from '../Helper/getClass';
 

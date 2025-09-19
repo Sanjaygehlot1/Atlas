@@ -6,9 +6,9 @@ export const fetchTimeTable = async (className) => {
         throw new Error('Class name is required');
     }
     try {
-    const res = await AxiosInstance.post('/api/timetable/get-timetable', { className });
+    const res = await AxiosInstance.post('/timetable/get-timetable', { className });
 
-    const excepRes = await AxiosInstance.post('/api/timetable/get-exceptional-timetable', { className });
+    const excepRes = await AxiosInstance.post('/timetable/get-exceptional-timetable', { className });
         console.log(excepRes.data);
 
 
@@ -67,9 +67,9 @@ export const uploadTimetable = async (data) => {
 
 export const getTeacherSchedule = async (facultyId) => {
     try {
-    const res = await AxiosInstance.get('/api/timetable/get-teacher-schedule');
+    const res = await AxiosInstance.get('/timetable/get-teacher-schedule');
         console.log(res.data);
-    const excepRes = await AxiosInstance.post('/api/timetable/get-faculty-exceptional-timetable', { facultyId });
+    const excepRes = await AxiosInstance.post('/timetable/get-faculty-exceptional-timetable', { facultyId });
         console.log(excepRes.data);
 
 

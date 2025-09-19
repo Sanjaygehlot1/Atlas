@@ -10,9 +10,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const checkUserSession = async (firebaseUser) => {
+    const checkUserSession = async () => {
         setIsLoading(true);
-        if (firebaseUser) {
+       
             try {
                 
                 const response = await AxiosInstance.get('/users/current-user');
@@ -33,11 +33,7 @@ export const AuthProvider = ({ children }) => {
             } finally {
                 setIsLoading(false);
             }
-        } else {
-            setUser(null);
-            setIsLoading(false);
-            console.log("No active session found.");
-        }
+        
     };
 
     useEffect(() => {

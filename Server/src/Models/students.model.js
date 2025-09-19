@@ -9,8 +9,11 @@ const userSchema = new Schema({
         trim: true
 
     },
-    uid: {
-        type : String,
+    googleId:{
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
     },
     picture : {
         type : String,

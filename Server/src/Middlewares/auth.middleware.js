@@ -6,19 +6,19 @@ import admin from "../firebase/firebaseAdmin.js";
 
 const AuthMiddleware = AsyncHandler(async (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken;
+    const token = req.cookies?.token;
+
+    console.log(token)
+
     if (!token) {
       return next(new ApiError(401, "Unauthorized Access"));
     }
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decodedToken)
 
-    const user = await User.findById(decodedToken._id).select("-password -refreshToken");
-    if (!user) {
-      return next(new ApiError(404, "User Not Found"));
-    }
-
-    req.user = user;
+  
+    req.user = decodedToken;
     next();
   } catch (error) {
     next(new ApiError(500, error.message));

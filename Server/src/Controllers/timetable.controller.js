@@ -143,7 +143,10 @@ export async function getTimetableForAClass(req, res) {
 
 
     // Remove day filter so all notes for the class are shown
-    const timetable = await Timetable.find({ class: className })
+
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+
+    const timetable = await Timetable.find({ class: className, day })
       .populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
@@ -171,14 +174,14 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
     return new ApiError(400, "Unauthorized Access: No Token provided.");
   }
   try {
-
+      console.log(decodedToken);
     const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
 
      const teacher = await Faculty.findOne({uid : decodedToken.uid});
      console.log("!!",teacher);
 
     const schedule = await Timetable.find({
-      faculty: { $in: [teacher._id] },
+      faculty: { $in: ["68860d94cf2bfd5edb07745b"] },
       day: day
     })
       .populate('year', 'name')

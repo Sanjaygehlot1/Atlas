@@ -4,33 +4,33 @@ import { ApiResponse } from "../Utils/ApiResponse.js";
 import User from "../Models/students.model.js";
 
 const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
 };
 
 
 const signInUser = AsyncHandler(async (req, res) => {
   const decodedToken = req.user;
 
-  console.log(decodedToken)
 
   const user = await User.findOneAndUpdate(
-    { uid: decodedToken.uid }, 
+    { googleId: decodedToken.googleId },
     {
       $set: {
         name: decodedToken.name,
         email: decodedToken.email,
         picture: decodedToken.picture,
-        isVerified: decodedToken.email_verified,
+        accessToken: decodedToken.accessToken,
+        refreshToken: decodedToken.refreshToken
       },
     },
-    { new: true, upsert: true } 
+    { new: true, upsert: true }
   );
 
-  console.log(user)
+  console.log("!!!! :: ",user)
   const message = user.createdAt === user.updatedAt
-    ? "Account created successfully."
-    : "User updated successfully.";
+    ? "Account creation successful."
+    : "Login successful.";
 
   return res.status(200).json(
     new ApiResponse(200, { user }, message)
@@ -43,67 +43,68 @@ const signInUser = AsyncHandler(async (req, res) => {
 
 
 const logoutUser = AsyncHandler(async (req, res) => {
-    return res
-        .status(200)
-        .clearCookie("accessToken", cookieOptions)
-        .json(new ApiResponse(200, {}, "User logged out successfully"));
+  return res
+    .status(200)
+    .clearCookie("token", cookieOptions)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
 
 
 const updateAcademicInfo = AsyncHandler(async (req, res) => {
-    const { year, department, rollNo, studentClass, dob, gender,contactNumber } = req.body;
+  const { year, department, rollNo, studentClass, dob, gender, contactNumber } = req.body;
 
-    console.log(year, department, rollNo, studentClass, dob, gender,contactNumber)
-    if (!year || !department || !rollNo || !studentClass || !dob || !gender || !contactNumber) {
-        console.log( year, department, rollNo, studentClass, dob, gender,contactNumber)
-        throw new ApiError(400, "All fields are required");
-    }
-    
-    const decodedToken = req.user;
-    const uid = decodedToken?.uid;
-    if(!uid) {
-        throw new ApiError(401, "Unauthorized access");
-    }
+  console.log(year, department, rollNo, studentClass, dob, gender, contactNumber)
+  if (!year || !department || !rollNo || !studentClass || !dob || !gender || !contactNumber) {
+    console.log(year, department, rollNo, studentClass, dob, gender, contactNumber)
+    throw new ApiError(400, "All fields are required");
+  }
 
-    const updatedUser = await User.findOneAndUpdate(
-        { uid },
-        {
-            $set: {
-                year,
-                department,
-                rollNo,
-                class: studentClass,
-                hasFilledDetails: true,
-                dob : dob.split('T')[0],
-                gender,
-                phone : contactNumber
-            },
-        },
-        { new: true }
-    );
+  const decodedToken = req.user;
+  const id = decodedToken?._id;
+  if (!id) {
+    throw new ApiError(401, "Unauthorized access");
+  }
 
-    return res.status(200).json(new ApiResponse(200, updatedUser, "Academic details updated successfully."));
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      $set: {
+        year,
+        department,
+        rollNo,
+        class: studentClass,
+        hasFilledDetails: true,
+        dob: dob.split('T')[0],
+        gender,
+        phone: contactNumber
+      },
+    },
+    { new: true }
+  );
+
+  return res.status(200).json(new ApiResponse(200, updatedUser, "Academic details updated successfully.")).cookie("token", req.cookies.token, cookieOptions);
 });
 
 const getCurrentUser = AsyncHandler(async (req, res) => {
-    
-    const decodedToken = req.user;
-    if (!decodedToken?.uid) {
-        throw new ApiError(401, "Unauthorized access");
-    }
+
+  const decodedToken = req.user;
+  if (!decodedToken.googleId) {
+    throw new ApiError(401, "Unauthorized access");
+  }
 
 
-    const user = await User.findOne({ uid: decodedToken.uid });
-    if (!user) {        
-        throw new ApiError(404, "User not found");
-    }
-    return res.status(200).json(new ApiResponse(200, user, "Current user fetched successfully."));
+  const user = await User.findOne({ googleId : decodedToken.googleId }).select("-refreshToken");
+  console.log("!1", user)
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+  return res.status(200).json(new ApiResponse(200, user, "session found"));
 
 })
 export {
-    signInUser,
-    logoutUser,
-    updateAcademicInfo,
-    getCurrentUser,
+  signInUser,
+  logoutUser,
+  updateAcademicInfo,
+  getCurrentUser,
 };

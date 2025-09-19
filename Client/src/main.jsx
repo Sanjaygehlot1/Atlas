@@ -16,7 +16,8 @@ import PrivateRoute from './Helper/privateRoute.jsx'
 import { NotFoundPage } from './Pages/Others/NotFoundPage.jsx'
 import { UnauthorizedPage } from './Pages/Others/UnAuthorizedPage.jsx'
 import MarkAttendancePage from './Pages/Teacher/MarkAttendance.jsx'
-import MyNote from './Components/MyNoteUI.jsx'
+import MyNote from './Pages/Notes/notes.jsx'
+import LoginSkeleton from './Pages/Others/loginSkeleton.jsx'
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
           </PublicRoute>
         ),
         path: '/'
+      },
+      {
+        element: (
+          <PublicRoute>
+            <LoginSkeleton />
+          </PublicRoute>
+        ),
+        path: '/auth/success'
       },
       {
         element: (

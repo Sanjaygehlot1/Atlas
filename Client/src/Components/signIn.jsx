@@ -1,7 +1,7 @@
 // SignIn.tsx
 import React,{useEffect, useState} from "react";
 import { Button, Card, Typography, App } from "antd";
-import {useNavigate} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import { GoogleOutlined } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
@@ -110,15 +110,16 @@ const SignIn = () => {
             </Text>
           </div>
 
+          <Link to={`http://localhost:8000/auth/google`}> 
           <Button
             type="primary"
             icon={<GoogleOutlined />}
             size="large"
             className="w-full h-12 text-lg bg-blue-600 hover:!bg-blue-700 text-white border-none transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full"
-            onClick={handleGoogleSignIn}
           >
             Sign in with Google
           </Button>
+          </Link>
 
           <div className="mt-6 text-center text-gray-500 text-xs sm:text-sm">
             By signing in, you agree to our{' '}

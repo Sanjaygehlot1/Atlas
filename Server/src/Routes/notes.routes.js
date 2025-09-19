@@ -7,7 +7,7 @@ import {uploadnotes,getnotes} from '../Controllers/notes.controller.js'
 const router = express.Router();
 
 // POST route to fetch notes
-router.post('/get-notes', verifyToken, getnotes);
+router.post('/get-notes', AuthMiddleware, getnotes);
 
 // POST route to upload notes
 router.post('/upload-notes', AuthMiddleware, upload.single('noteFile'),uploadnotes );

@@ -1,0 +1,1098 @@
+[
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 1,
+    "subjectName": "Applied Mathematics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 1,
+    "subjectName": "Engineering Chemistry",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 1,
+    "subjectName": "Engineering Mechanics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 1,
+    "subjectName": "C Programming",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 1,
+    "subjectName": "Basic Electrical Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 2,
+    "subjectName": "Applied Mathematics II",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 2,
+    "subjectName": "Applied Physics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 2,
+    "subjectName": "Engineering Drawing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 2,
+    "subjectName": "Object Oriented Programming (C++)",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "IT",
+    "semester": 2,
+    "subjectName": "Workshop Practice",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 3,
+    "subjectName": "Applied Mathematics III",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 3,
+    "subjectName": "Data Structure and Algorithm Analysis",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 3,
+    "subjectName": "Analog and Digital Circuits",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 3,
+    "subjectName": "Database Management Systems",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 3,
+    "subjectName": "Principles of Analog and Digital Communication",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 4,
+    "subjectName": "Applied Mathematics IV",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 4,
+    "subjectName": "Computer Networks",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 4,
+    "subjectName": "Computer Organization and Architecture",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 4,
+    "subjectName": "Automata Theory",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "IT",
+    "semester": 4,
+    "subjectName": "Web Programming",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 5,
+    "subjectName": "Internet Programming",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 5,
+    "subjectName": "Computer Network Security",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 5,
+    "subjectName": "Entrepreneurship and E-Business",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 5,
+    "subjectName": "Software Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 6,
+    "subjectName": "Data Mining & Business Intelligence",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 6,
+    "subjectName": "Web X.0",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 6,
+    "subjectName": "Wireless Technology",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "IT",
+    "semester": 6,
+    "subjectName": "AI and DS – 1",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 7,
+    "subjectName": "Cloud Computing and Security",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 7,
+    "subjectName": "Data Science",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 7,
+    "subjectName": "Internet of Things",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 8,
+    "subjectName": "Digital Signal Processing",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 8,
+    "subjectName": "Big Data Analytics",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "IT",
+    "semester": 8,
+    "subjectName": "High Performance Computing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 1,
+    "subjectName": "Applied Mathematics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 1,
+    "subjectName": "Applied Chemistry I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 1,
+    "subjectName": "Engineering Mechanics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 1,
+    "subjectName": "C Programming",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 1,
+    "subjectName": "Basic Electrical Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 2,
+    "subjectName": "Applied Mathematics II",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 2,
+    "subjectName": "Applied Physics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 2,
+    "subjectName": "Engineering Drawing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 2,
+    "subjectName": "Object Oriented Programming (C++)",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "CMPN",
+    "semester": 2,
+    "subjectName": "Workshop Practice",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 3,
+    "subjectName": "Applied Mathematics III",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 3,
+    "subjectName": "Digital Logic Design and Analysis",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 3,
+    "subjectName": "Discrete Mathematics",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 3,
+    "subjectName": "Electronic Circuits and Communication Fundamentals",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 3,
+    "subjectName": "Data Structures",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 4,
+    "subjectName": "Applied Mathematics IV",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 4,
+    "subjectName": "Analysis of Algorithms",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 4,
+    "subjectName": "Computer Organization and Architecture",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 4,
+    "subjectName": "Computer Graphics",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "CMPN",
+    "semester": 4,
+    "subjectName": "Operating System",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 5,
+    "subjectName": "Theoretical Computer Science",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 5,
+    "subjectName": "Database Management Systems",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 5,
+    "subjectName": "Computer Networks",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 5,
+    "subjectName": "Microprocessor",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 6,
+    "subjectName": "Software Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 6,
+    "subjectName": "Data Structures",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 6,
+    "subjectName": "Web Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "CMPN",
+    "semester": 6,
+    "subjectName": "Advanced Operating Systems",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 7,
+    "subjectName": "Digital Signal & Image Processing",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 7,
+    "subjectName": "Mobile Communication & Computing",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 7,
+    "subjectName": "Artificial Intelligence & Soft Computing",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 8,
+    "subjectName": "Human Machine Interaction",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 8,
+    "subjectName": "Distributed Computing",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "CMPN",
+    "semester": 8,
+    "subjectName": "Cloud Computing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 1,
+    "subjectName": "Applied Mathematics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 1,
+    "subjectName": "Engineering Chemistry",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 1,
+    "subjectName": "Engineering Mechanics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 1,
+    "subjectName": "C Programming",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 1,
+    "subjectName": "Basic Electrical Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 2,
+    "subjectName": "Applied Mathematics II",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 2,
+    "subjectName": "Applied Physics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 2,
+    "subjectName": "Engineering Drawing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 2,
+    "subjectName": "Object Oriented Programming (C++)",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "ECS",
+    "semester": 2,
+    "subjectName": "Workshop Practice",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 3,
+    "subjectName": "Applied Mathematics III",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 3,
+    "subjectName": "Electronic Devices and Circuits",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 3,
+    "subjectName": "Digital System Design",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 3,
+    "subjectName": "Data Structures and Analysis",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 3,
+    "subjectName": "Object Oriented Programming",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 4,
+    "subjectName": "Applied Mathematics IV",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 4,
+    "subjectName": "Computer Networks",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 4,
+    "subjectName": "Computer Organization and Architecture",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 4,
+    "subjectName": "Microprocessors and Peripherals",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "ECS",
+    "semester": 4,
+    "subjectName": "Signals and Systems",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 5,
+    "subjectName": "Data Communication and Networks",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 5,
+    "subjectName": "Electromagnetic Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 5,
+    "subjectName": "Analog Communication",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 5,
+    "subjectName": "Control Systems",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 6,
+    "subjectName": "Digital Communication",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 6,
+    "subjectName": "Digital Signal Processing",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 6,
+    "subjectName": "Antenna and Wave Propagation",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "ECS",
+    "semester": 6,
+    "subjectName": "VLSI Design",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 7,
+    "subjectName": "Mobile Communication",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 7,
+    "subjectName": "Microwave Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 7,
+    "subjectName": "Optical Communication",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 8,
+    "subjectName": "Embedded System Design",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 8,
+    "subjectName": "Wireless Networks",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "ECS",
+    "semester": 8,
+    "subjectName": "Elective - Internet of Things",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 1,
+    "subjectName": "Applied Mathematics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 1,
+    "subjectName": "Applied Chemistry",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 1,
+    "subjectName": "Engineering Mechanics",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 1,
+    "subjectName": "C Programming",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 1,
+    "subjectName": "Basic Electrical Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 2,
+    "subjectName": "Applied Mathematics II",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 2,
+    "subjectName": "Applied Physics I",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 2,
+    "subjectName": "Engineering Drawing",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 2,
+    "subjectName": "Object Oriented Programming (C++)",
+    "faculty": ""
+  },
+  {
+    "class": "FE",
+    "year": 1,
+    "department": "EXTC",
+    "semester": 2,
+    "subjectName": "Workshop Practice",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 3,
+    "subjectName": "Applied Mathematics III",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 3,
+    "subjectName": "Digital Logic Design",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 3,
+    "subjectName": "Electronic Devices and Circuits",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 3,
+    "subjectName": "Electrical Networks",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 3,
+    "subjectName": "Electronic Instrumentation",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 4,
+    "subjectName": "Applied Mathematics IV",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 4,
+    "subjectName": "Analog and Digital IC Design and Applications",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 4,
+    "subjectName": "Principle of Communication Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 4,
+    "subjectName": "Electromagnetic Wave Theory",
+    "faculty": ""
+  },
+  {
+    "class": "SE",
+    "year": 2,
+    "department": "EXTC",
+    "semester": 4,
+    "subjectName": "Electronic Devices and Circuits II",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 5,
+    "subjectName": "Random Signal Analysis",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 5,
+    "subjectName": "Microprocessors and Microcontroller",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 5,
+    "subjectName": "RF Circuit Design",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 5,
+    "subjectName": "Signals and Systems",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 6,
+    "subjectName": "Digital Communication",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 6,
+    "subjectName": "TV and Video Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 6,
+    "subjectName": "Industrial Economics and Telecom Regulations",
+    "faculty": ""
+  },
+  {
+    "class": "TE",
+    "year": 3,
+    "department": "EXTC",
+    "semester": 6,
+    "subjectName": "Elective - VLSI Design",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 7,
+    "subjectName": "Mobile Communication",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 7,
+    "subjectName": "Microwave Engineering",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 7,
+    "subjectName": "Optical Communication",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 8,
+    "subjectName": "Wireless Networks",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 8,
+    "subjectName": "Embedded System Design",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 8,
+    "subjectName": "Satellite Communication",
+    "faculty": ""
+  },
+  {
+    "class": "BE",
+    "year": 4,
+    "department": "EXTC",
+    "semester": 8,
+    "subjectName": "Project II",
+    "faculty": ""
+  }
+]
