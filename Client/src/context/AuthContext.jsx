@@ -24,7 +24,11 @@ export const AuthProvider = ({ children }) => {
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Failed to fetch current user data:", error);
+                if (error.response?.status === 401) {
+                    console.log("No active session found - user not logged in.");
+                } else {
+                    console.error("Error checking user session:", error.message);
+                }
                 setUser(null);
             } finally {
                 setIsLoading(false);

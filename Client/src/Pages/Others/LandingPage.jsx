@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Layout,
@@ -55,7 +56,7 @@ const FeatureCard = ({ icon, title, description }) => (
     transition={{ type: "spring", stiffness: 300 }}
   >
     <Card
-      bordered={false}
+      variant="borderless"
       style={{
         textAlign: "center",
         padding: "24px",
@@ -260,7 +261,7 @@ const LandingPage = () => {
             <Col xs={24} md={12} lg={8}>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Card
-                  bordered={false}
+                  variant="borderless"
                   style={{
                     borderRadius: "12px",
                     height: "100%",
@@ -291,7 +292,7 @@ const LandingPage = () => {
             <Col xs={24} md={12} lg={8}>
               <motion.div whileHover={{ scale: 1.02 }}>
                 <Card
-                  bordered={false}
+                  variant="borderless"
                   style={{
                     borderRadius: "12px",
                     height: "100%",

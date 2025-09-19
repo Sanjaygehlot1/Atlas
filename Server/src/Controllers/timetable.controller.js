@@ -141,9 +141,9 @@ export async function getTimetableForAClass(req, res) {
   }
   try {
 
-    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
 
-    const timetable = await Timetable.find({ class: className, day })
+    // Remove day filter so all notes for the class are shown
+    const timetable = await Timetable.find({ class: className })
       .populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
