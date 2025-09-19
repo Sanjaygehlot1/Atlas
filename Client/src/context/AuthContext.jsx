@@ -1,36 +1,56 @@
-
-import  { createContext, useState, useContext, useEffect } from 'react';
-import { AxiosInstance } from '../Axios/AxiosInstance';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import axios from 'axios';
+import { auth } from "../firebase/firebaseConfig.js";
+import { AxiosInstance } from '../Axios/AxiosInstance.js';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
 
-    
-    useEffect(() => {
-        const checkUserSession = async () => {
+    const checkUserSession = async (firebaseUser) => {
+        setIsLoading(true);
+        if (firebaseUser) {
             try {
+                
                 const response = await AxiosInstance.get('/users/current-user');
-                console.log("Current user response:", response.data);
+                
                 if (response.data.success) {
-                    setUser(response.data.data || null);
+                    setUser(response.data.data);
+                    console.log("User session found and state set.");
+                } else {
+                    setUser(null);
                 }
             } catch (error) {
-                console.log("No active session found.");
+                console.error("Failed to fetch current user data:", error);
                 setUser(null);
             } finally {
                 setIsLoading(false);
             }
-        };
-        checkUserSession();
+        } else {
+            setUser(null);
+            setIsLoading(false);
+            console.log("No active session found.");
+        }
+    };
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            checkUserSession(firebaseUser);
+        });
+
+        return () => unsubscribe();
     }, []);
 
-
-    const login = async (email, password) => {
+    const login = async (token) => {
         try {
-            const response = await AxiosInstance.post('/users/auth/login', { email, password });
+            const response = await AxiosInstance.post('/users/auth/create-account', {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             console.log("Login response:", response.data);
             if (response.data.success) {
                 setUser(response.data.data.user);
@@ -44,27 +64,24 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await AxiosInstance.get('/users/auth/logout');
-            setUser(null); 
-            console.log('AuthContext: User state cleared'); 
+            await signOut(auth);
+            setUser(null);
+            console.log('AuthContext: User state cleared');
         } catch (error) {
             console.error("Logout failed:", error);
-            console.error("Logout error details:", error.response?.data);
             setUser(null);
         }
     };
 
-   
     const value = {
         user,
         setUser,
         login,
         logout,
         isLoading,
-        isAuthenticated: !!user, 
+        isAuthenticated: !!user,
     };
-    
-   
+
     return (
         <AuthContext.Provider value={value}>
             {!isLoading && children}
@@ -79,6 +96,3 @@ export const useAuth = () => {
     }
     return context;
 };
-
-
-

@@ -13,7 +13,6 @@ import {
 } from 'antd';
 import { MailOutlined, LockOutlined, UserOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { createUserAccount, verifyUserwithCode } from '../Slices/AuthSlice';
 const { Title, Text } = Typography;
 const { Step } = Steps;
 import RegistrationIllustration from './Registrationllustration';

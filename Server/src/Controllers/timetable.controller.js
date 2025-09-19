@@ -11,7 +11,6 @@ import fs from 'fs';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { ApiError } from '../Utils/ApiError.js';
-import { time } from 'console';
 
 const generateRecordHash = (record) => {
   const dataString = [
@@ -28,6 +27,9 @@ const generateRecordHash = (record) => {
 
 export async function handleTimetableUpload(req, res) {
   const filePath = req.file ? req.file.path : null;
+
+  const decodedToken = req.user;
+  console.log(decodedToken);
 
   try {
     if (!filePath || !req.body.year) {
@@ -72,7 +74,7 @@ export async function handleTimetableUpload(req, res) {
 
         const timeSlotDoc = await TimeSlot.findOneAndUpdate({ label: record.timeSlot }, { $setOnInsert: { label: record.timeSlot, startTime: '00:00', endTime: '00:00' } }, { upsert: true, new: true });
 
-        const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT' } }, { upsert: true, new: true });
+        const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT', uid : decodedToken.uid } }, { upsert: true, new: true });
 
         const roomDoc = await Room.findOneAndUpdate({ roomCode: record.room }, { $setOnInsert: { roomCode: record.room, floor: 'TBD' } }, { upsert: true, new: true });
 
@@ -145,7 +147,7 @@ export async function getTimetableForAClass(req, res) {
       .populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
-      .populate('rooms', 'roomCode floor')
+      .populate('rooms', 'roomCode type')
       .select(' -createdAt -updatedAt -entryHash').exec();
 
     console.log(timetable);
@@ -163,18 +165,21 @@ export async function getTimetableForAClass(req, res) {
 
 export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
 
-  const teacherId = req.user?._id;
+  const decodedToken = req.user;
 
-  if (!teacherId) {
-    return new ApiError(400, "No teacher ID provided.");
+  if (!decodedToken) {
+    return new ApiError(400, "Unauthorized Access: No Token provided.");
   }
   try {
 
     const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
 
+     const teacher = await Faculty.findOne({uid : decodedToken.uid});
+     console.log("!!",teacher);
+
     const schedule = await Timetable.find({
-      faculty: { $in: ["688612e1cf2bfd5edb077461"] },
-      day: "Monday"
+      faculty: { $in: [teacher._id] },
+      day: day
     })
       .populate('year', 'name')
       .populate('timeSlot', 'label')
@@ -189,7 +194,7 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
     }
     return res.status(200).json(new ApiResponse(200, schedule, `Schedule for today retrieved successfully.`));
   } catch (error) {
-    throw new ApiError(500, "An error occurred while retrieving the schedule.");
+    throw new ApiError(500, error.message);
   }
 
 })
@@ -228,7 +233,7 @@ export async function getExceptionsForAFaculty(req, res) {
   try {
     const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
     console.log(day)
-    const exceptions = await LectureException.find({ faculty: new mongoose.Types.ObjectId("688612e1cf2bfd5edb077461"), day: "Monday" })
+    const exceptions = await LectureException.find({ faculty: facultyId, day: day })
       .populate('timetableEntry', 'subjectName timeSlot class')
       .populate('timetableEntry.year', 'name')
       .populate('timetableEntry.faculty', 'name code')

@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import RegisterPage from './Components/register.jsx'
-import LoginPage from './Components/login.jsx'
+import SignIn from './Components/signIn.jsx'
 import TimetableUploadForm from './Pages/Teacher/uploadTimtable.jsx'
 import Dashboard from './Pages/Teacher/teacherDashboard.jsx'
 import LandingPage from './Pages/Others/LandingPage.jsx'
@@ -32,16 +32,12 @@ const router = createBrowserRouter([
         path: '/'
       },
       {
-        element: <RegisterPage />,
-        path: '/create-account',
-      },
-      {
         element: (
           <PublicRoute>
-            <LoginPage />
+            <SignIn />
           </PublicRoute>
         ),
-        path: '/login',
+        path: '/sign-in',
       },
       {
         element: (

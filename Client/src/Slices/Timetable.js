@@ -35,7 +35,7 @@ export const fetchTimeTable = async (className) => {
 
 
 
-
+        console.log(mergedTimetable);
 
         return mergedTimetable;
 

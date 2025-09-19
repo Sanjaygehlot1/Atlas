@@ -17,7 +17,7 @@ const getUserClass = (user) => {
 
     console.log("Class Name:", user.class);
 
-    className += " " + (user.class == "1" ? "1" : "2");
+    className += " " + (user.class == "Class 1" ? "1" : "2");
 
     console.log("Final Class Name:", className);
 

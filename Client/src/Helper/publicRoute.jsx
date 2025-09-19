@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 const PublicRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
+  console.log(user)
 
   if (isLoading) {
      return (

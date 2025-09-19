@@ -18,13 +18,12 @@ cloudinary.config({
 
 
 const getnotes = AsyncHandler(async (req, res) => {
-    const userId = req.user._id;
     const { subjectId } = req.body; // Back to req.body for POST
 
     if (!subjectId) {
         throw new ApiError(400, 'Bad Request: subjectId is required');
     }
-
+console.log(subjectId)
     try {
         // Students should see ALL notes for a subject, not just their own uploads
         // Search by subject only (remove user filter for student access)

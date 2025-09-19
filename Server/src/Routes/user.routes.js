@@ -1,15 +1,13 @@
 import {Router} from 'express';
-import {loginUser,logoutUser,registerUser,getCurrentUser,updateAcademicInfo,verifyUser} from '../Controllers/user.controller.js'
-import { AuthMiddleware } from '../Middlewares/auth.middleware.js';
+import {logoutUser,signInUser,getCurrentUser,updateAcademicInfo} from '../Controllers/user.controller.js'
+import {verifyToken } from '../Middlewares/auth.middleware.js';
 
 
 const router = Router();
 
-router.post('/auth/create-account', registerUser);
-router.post('/auth/verify',verifyUser);
-router.post('/auth/login',loginUser);
-router.post('/auth/logout',AuthMiddleware,logoutUser);
-router.get('/current-user', AuthMiddleware, getCurrentUser);
-router.put('/update-academic-info', AuthMiddleware, updateAcademicInfo);
+router.post('/auth/create-account',verifyToken, signInUser);
+router.post('/auth/logout',verifyToken,logoutUser);
+router.get('/current-user', verifyToken, getCurrentUser);
+router.put('/update-academic-info', verifyToken, updateAcademicInfo);
 
 export {router as userRouter};

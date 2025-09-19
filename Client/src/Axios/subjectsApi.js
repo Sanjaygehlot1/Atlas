@@ -4,7 +4,7 @@ import { AxiosInstance } from './AxiosInstance.js';
 
 export const fetchUserSubjects = async (className) => {
   try {
-    const response = await AxiosInstance.post('/api/timetable/get-timetable', {
+    const response = await AxiosInstance.post('/timetable/get-timetable', {
       className: className
     });
     

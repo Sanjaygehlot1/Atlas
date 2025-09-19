@@ -15,6 +15,7 @@
     "antd": "^5.26.6",
     "axios": "^1.11.0",
     "cloudinary": "^2.7.0",
+    "firebase": "^12.1.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.534.0",
     "react": "^19.1.0",

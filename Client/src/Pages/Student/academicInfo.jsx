@@ -47,14 +47,39 @@ const AcademicInfoComponent = () => {
 
     const updateAcademics = async (values) => {
         console.log("Updating academics with:", values);
-        const res = await updateAcademicInfo({...values, studentClass : values.studentClass});
+        const res = await updateAcademicInfo({ ...values, studentClass: values.studentClass });
         console.log(res);
-        
+
     };
+    console.log(user)
+
+    const getDept = (userObj) => {
+        if (userObj && userObj.email) {
+            if (userObj.email.includes("inft")) {
+                return "INFT"
+            }
+            else if (userObj.email.includes("cmpn")) {
+                return "CMPN"
+            }
+            else if (userObj.email.includes("extc")) {
+                return "EXTC"
+            }
+            else if (userObj.email.includes("ecs")) {
+                return "ECS"
+            }
+            else {
+                return "None"
+            }
+        }
+    }
 
     useEffect(() => {
         if (user) {
-            form.setFieldsValue({ name: user.name });
+
+            const dept = getDept(user)
+            console.log(dept)
+
+            form.setFieldsValue({ name: user.name, department: dept });
         }
     }, [user, form]);
 
@@ -82,7 +107,7 @@ const AcademicInfoComponent = () => {
             await updateAcademics(finalData);
 
             message.success('Your details have been saved successfully!');
-            navigate('/student/dashbaord');
+            navigate('/student/dashboard');
         } catch (error) {
             console.error('Failed to update academic info:', error);
             message.error(error.response?.data?.message || 'Failed to save details. Please try again.');
@@ -97,7 +122,7 @@ const AcademicInfoComponent = () => {
             content: (
                 <>
                     <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
-                        <Input prefix={<UserOutlined />} placeholder="e.g., John Doe" size="large" />
+                        <Input readOnly={true} prefix={<UserOutlined />} placeholder="e.g., John Doe" size="large" />
                     </Form.Item>
                     <Form.Item name="dob" label="Date of Birth" rules={[{ required: true }]}>
                         <DatePicker style={{ width: '100%' }} size="large" />
@@ -117,9 +142,7 @@ const AcademicInfoComponent = () => {
             content: (
                 <>
                     <Form.Item name="department" label="Department" rules={[{ required: true }]}>
-                        <Select placeholder="Select your department" size="large" suffixIcon={<BookOutlined />}>
-                            <Option value="INFT">INFT</Option><Option value="CMPN">CMPN</Option><Option value="EXTC">EXTC</Option><Option value="ECS">ECS</Option>
-                        </Select>
+                        <Input readOnly={true} prefix={<BookOutlined />} placeholder="Enter your department" size="large" />
                     </Form.Item>
                     <Row gutter={16}>
                         <Col xs={24} sm={12}>
@@ -147,10 +170,36 @@ const AcademicInfoComponent = () => {
             title: 'Other Details',
             content: (
                 <>
-                    <Form.Item name="contactNumber" label="Contact Number" rules={[{ required: true, pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number.' }]}>
-                        <Input prefix={<PhoneOutlined />} placeholder="Your 10-digit mobile number" size="large" />
+                    <Form.Item label="Contact Number" required>
+                        <Input.Group compact>
+                            <Form.Item noStyle>
+                                <Input
+                                    value="+91"
+                                    style={{ width: '15%', minWidth: 60, pointerEvents: 'none', color: '#999' }}
+                                    size="large"
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name="contactNumber"
+                                noStyle
+                                rules={[
+                                    {
+                                        required: true,
+                                        pattern: /^[0-9]{10}$/,
+                                        message: 'Please enter a valid 10-digit number.',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    prefix={<PhoneOutlined />}
+                                    placeholder="Your 10-digit mobile number"
+                                    style={{ width: '85%' }}
+                                    size="large"
+                                />
+                            </Form.Item>
+                        </Input.Group>
                     </Form.Item>
-                   
+
                 </>
             ),
         },

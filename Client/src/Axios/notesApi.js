@@ -6,7 +6,7 @@ export const fetchNotesForSubjectAndUser = async (subjectId) => {
   try {
     console.log('🔍 Fetching notes for subject:', subjectId);
     // Option 1: Use POST with body data (if you prefer POST)
-    const response = await AxiosInstance.post('/api/notes/get-notes', {
+    const response = await AxiosInstance.post('/notes/get-notes', {
       subjectId
     });
     console.log('📝 Notes API response:', response.data);

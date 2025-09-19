@@ -1,7 +1,8 @@
 import {mongoose,Schema} from 'mongoose';
 
 const facultySchema = new Schema({
-  code: { type: String, required: true, unique: true }, 
+  uid : {type : String, required : true , unique : true},
+  code: { type: String, required: true}, 
   name: { type: String, required: true },               
   department: { type: String, required: true },         
 });

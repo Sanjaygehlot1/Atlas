@@ -108,18 +108,18 @@ const LandingPage = () => {
             </Col>
             <Col>
               <Space>
-                <Link to="/login">
+                <Link to="/sign-in">
                   <Button icon={<LoginOutlined />} style={{ backdropFilter: "blur(6px)" }}>
                     Login
                   </Button>
                 </Link>
-                <Link to="/create-account">
+                <Link to="/sign-in">
                   <Button
                     type="primary"
                     icon={<TeamOutlined />}
                     style={{ backdropFilter: "blur(6px)" }}
                   >
-                    Register
+                    Sign Up
                   </Button>
                 </Link>
               </Space>
@@ -162,7 +162,7 @@ const LandingPage = () => {
                 Access your timetables, manage lecture notes, and stay connected
                 with your college community, all in one seamless platform.
               </Paragraph>
-              <Link to="/create-account">
+              <Link to="/sign-in">
                 <motion.div whileHover={{ scale: 1.05 }}>
                   <Button
                     type="primary"

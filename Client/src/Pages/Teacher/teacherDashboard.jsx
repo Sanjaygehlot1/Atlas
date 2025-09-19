@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, CalendarDays, UserCheck, FileText, Megaphone, Users, Settings, LogOut, Search, Bell, Clock, BookOpenCheck, MoreVertical, BookOpen, BookCopy, FileClock, UsersRound, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { getTeacherSchedule, updateLectureStatus, getCompleteTT } from '../../Slices/Timetable';
-import { App, Switch, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space,Typography } from 'antd'
+import { App, Tag, Card as Card1, Button, Dropdown, Menu, Row, Col, Space,Typography } from 'antd'
 import MyNoteUI from '../../Components/MyNoteUI.jsx';
 
 const { Text } = Typography;
