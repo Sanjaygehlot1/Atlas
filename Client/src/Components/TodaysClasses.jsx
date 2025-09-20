@@ -47,7 +47,7 @@ const TodaysClasses = () => {
     const updateStatus = async (lecture, status, updatedRoom) => {
         try {
             if (lecture && status) {
-                const response = await updateLectureStatus(lecture._id, status, updatedRoom);
+                await updateLectureStatus(lecture._id, status, updatedRoom);
                 const res = await getTeacherSchedule(user?._id);
                 setTodaysClasses(res);
                 if (status === "Venue_Changed") {

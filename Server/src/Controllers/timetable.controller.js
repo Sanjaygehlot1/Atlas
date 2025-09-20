@@ -180,7 +180,7 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
 
     const schedule = await Lecture.find({
       faculty: { $in: ["688ccdb6fe1bdf7b7b228965"] },
-      
+
     }).populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
@@ -188,7 +188,7 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
       .select(' -createdAt -updatedAt -entryHash').exec();
 
 
-   if (!schedule) {
+    if (!schedule) {
       return res.status(401).json(new ApiError(401, `Error fetching schedule.`));
     }
 
@@ -211,7 +211,7 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
   const { lectureId } = req.params;
   const { status, updatedRoom } = req.body;
   console.log(req.body)
-  const teacherId = req.user?._id;
+
   console.log(lectureId, status)
 
   if (!status) {
@@ -229,35 +229,28 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
 
 
 
-  const lecture = await Timetable.findById(lectureId).populate('faculty');
+  const lecture = await Lecture.findById(lectureId).populate('faculty');
+
   if (!lecture) {
     throw new ApiError(404, "Lecture not found.");
   }
 
   console.log(lecture)
 
-  // if (!lecture.faculty.some(f => f._id.equals(teacherId)) && req.user.role !== 'admin') {
-  //     throw new ApiError(403, "You are not authorized to update this lecture.");
-  // }
-  let lectureException;
-  if (status === "Scheduled") {
-    await LectureException.deleteMany({ timetableEntry: lectureId, day: lecture.day, class: lecture.class });
-  } else {
-    lectureException = await LectureException.findOneAndUpdate(
-      { timetableEntry: lectureId, day: lecture.day, class: lecture.class },
-      { $set: { status, notes: lecture.notes, faculty: lecture.faculty[0]._id, name: lecture.subjectName, date: new Date(), updatedRoom } },
-      { upsert: true, new: true }
-    );
-    await lectureException.save();
+  lecture.status = status;
+  if (status === "Venue_Changed" && updatedRoom) {
+    lecture.updatedRoom = updatedRoom;
   }
 
+  await lecture.save();
+  console.log("Updated Lecture:", lecture);
 
 
   console.log(updatedRoom)
   let message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been ${status.toLowerCase()}.`;
 
   if (updatedRoom != undefined) {
-    message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been  shifted to Room ${updatedRoom} on ${lecture.day}.`;
+    message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been  shifted to Room ${updatedRoom} for today.`;
   }
   console.log("Lectreeeeee:", lecture)
 
@@ -276,7 +269,7 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
 
   // await sendNotificationToClass(lecture.class, "Lecture Status Update", message);
 
-  return res.status(200).json(new ApiResponse(200, lectureException, message));
+  return res.status(200).json(new ApiResponse(200, lecture, message));
 });
 
 export const getCompleteTimetable = AsyncHandler(async (req, res) => {

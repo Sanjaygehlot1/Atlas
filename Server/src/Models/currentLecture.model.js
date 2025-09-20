@@ -42,9 +42,13 @@ const lectureSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['scheduled', 'cancelled', 'rescheduled'],
-    default: 'scheduled',
+    enum: ['Scheduled', 'Cancelled', 'Venue_Changed'],
+    default: 'Scheduled',
   },
+  updatedRoom : {
+    type : String,
+    default : null
+  }
 }, { timestamps: true });
 
 lectureSchema.index({ class: 1, date: 1 });

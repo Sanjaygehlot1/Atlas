@@ -85,7 +85,7 @@ export const updateLectureStatus = async (lectureId, status,updatedRoom) => {
         throw new Error('Lecture ID is required');
     }
     try {
-    const res = await AxiosInstance.patch(`/api/timetable/${lectureId}/status`, { status ,updatedRoom});
+    const res = await AxiosInstance.patch(`/timetable/${lectureId}/status`, { status ,updatedRoom});
         console.log('Cancel response:', res);
         console.log(res.data);
         return res.data;
