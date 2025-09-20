@@ -11,10 +11,12 @@ import AppLogo from './Components/appLogo';
 import SiderMenu from './Components/sideMenu';
 import DashboardContent from './Components/dashboardContent';
 import ProfileModal from './Components/profileModal';
+import NotificationModal from './Components/notificationModal';
+import { useSocket } from '../../context/socketContext';
+
 
 const { Header, Sider, Content } = Layout;
 
-// Enhanced data with more comprehensive information
 const attendanceData = [{ name: 'Present', value: 85, color: '#52c41a' }, { name: 'Absent', value: 15, color: '#ff4d4f' }];
 const weeklyPerformanceData = [
     { day: 'Mon', attendance: 95, assignments: 80 }, { day: 'Tue', attendance: 90, assignments: 85 },
@@ -34,6 +36,9 @@ const StudentDashboard = () => {
     const [todaysTimetable, setTodaysTimetable] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isProfileModalVisible, setIsProfileModalVisible] = useState(false);
+    const [isNotificationModalVisible, setisNotificationModalVisible] = useState(false)
+
+    const { lectureUpdate } = useSocket();
 
     const { user, logout } = useAuth();
     const { message } = App.useApp();
@@ -67,6 +72,26 @@ const StudentDashboard = () => {
         };
         loadDashboardData();
     }, [user, message]);
+
+    useEffect(() => {
+
+
+
+        if (lectureUpdate) {
+            setTodaysTimetable((prev) =>
+                prev.map((lecture) =>
+                    lecture._id === lectureUpdate.lectureId
+                        ? { ...lecture, status: lectureUpdate.status, updatedRoom: lectureUpdate.newVenue }
+                        : lecture
+                )
+            );
+
+            
+        }
+
+    }, [lectureUpdate])
+
+    console.log(todaysTimetable)
 
     const today = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -130,7 +155,6 @@ const StudentDashboard = () => {
                 <SiderMenu selectedKey={getSelectedKey()} handleMenuClick={handleMenuClick} />
             </Sider>
 
-            {/* Mobile Drawer with matching white theme */}
             <Drawer
                 title={<AppLogo collapsed={false} />}
                 placement="left"
@@ -158,7 +182,7 @@ const StudentDashboard = () => {
                         <div className="relative">
                             <Tooltip title="Notifications">
                                 <button className="text-gray-600 hover:text-blue-500 transition-colors focus:outline-none relative" aria-label="Notifications">
-                                    <BellOutlined className="text-xl" />
+                                    <BellOutlined className="text-xl" onClick={()=> setisNotificationModalVisible(true)} />
                                     <span className="absolute -top-1 -right-1 flex h-2 w-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -167,7 +191,7 @@ const StudentDashboard = () => {
                             </Tooltip>
                         </div>
                         <div className="flex items-center space-x-3 cursor-pointer p-1 rounded-full hover:bg-gray-100 transition-colors"
-                        onClick={() => setIsProfileModalVisible(true)}>
+                            onClick={() => setIsProfileModalVisible(true)}>
                             <div className="relative w-10 h-10 flex-shrink-0">
                                 {user?.picture ? (
                                     <img src={user.picture} alt="User Avatar" className="w-full h-full rounded-full border-2 border-white shadow-sm object-cover" />
@@ -205,6 +229,7 @@ const StudentDashboard = () => {
                 onClose={hideProfileModal}
                 user={user}
             />
+            
         </Layout>
     );
 };

@@ -1,9 +1,8 @@
 import { mongoose, Schema } from 'mongoose';
 
 const notificationSchema = new Schema({
-    recipient: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    recipientClass: {
+        type: String,
         required: true
     },
     title: {
@@ -20,8 +19,20 @@ const notificationSchema = new Schema({
         default: 'Announcement'
     },
     relatedLecture: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Timetable'
+        type: String,
+        default: null
+    },
+    sender: {
+        type: String,
+        default: 'Admin'
+    },
+    date : {
+        type: Date,
+        default: Date.now
+    },
+    time : {
+        type: String,
+        default: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 }, { timestamps: true });
 

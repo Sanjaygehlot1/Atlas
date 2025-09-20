@@ -3,9 +3,10 @@ import { Server } from "socket.io";
 const initSocketIO = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: process.env.CORS_ORIGIN,
+            origin: "http://localhost:5173", // Adjust this to your client's URL,
             credentials: true
-        }
+        },
+        transports : ['websocket', 'polling']
     });
 
     io.on("connection", (socket) => {

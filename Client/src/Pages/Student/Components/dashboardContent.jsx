@@ -18,9 +18,11 @@ const getPriorityColor = (priority) => {
     return colors[priority] || '#d9d9d9';
 };
 
-const getLiveStatus = (timeSlotLabel) => {
+const getLiveStatus = (startTime, endTime) => {
     const now = new Date();
-    const [startTimeStr, endTimeStr] = timeSlotLabel.split(' - ').map(s => s.trim());
+
+    console.log("ss:", startTime);
+    console.log("es:", endTime);
 
     const parseTime = (timeStr) => {
         if (!timeStr) return null;
@@ -35,8 +37,10 @@ const getLiveStatus = (timeSlotLabel) => {
         return date;
     };
 
-    const start = parseTime(startTimeStr);
-    const end = parseTime(endTimeStr);
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+    console.log("Start Time:", start);
+    console.log("End Time:", end);
     if (!start || !end) return 'finished';
     if (now >= start && now < end) return 'ongoing';
     if (now < start) return 'upcoming';
@@ -44,7 +48,9 @@ const getLiveStatus = (timeSlotLabel) => {
 };
 
 const getLectureInfo = (lecture) => {
-    const status = getLiveStatus(lecture.timeSlot.label);
+    console.log("Evaluating lecture:", lecture);
+    const status = getLiveStatus(lecture.timeSlot.startTime, lecture.timeSlot.endTime);
+    console.log(status)
     const statusConfig = {
         ongoing: { color: '#52c41a', text: 'Live', icon: <ClockCircleOutlined /> },
         upcoming: { color: '#1890ff', text: 'Upcoming', icon: <CalendarOutlinedAnt /> },
@@ -53,36 +59,88 @@ const getLectureInfo = (lecture) => {
     return statusConfig[status] || statusConfig.finished;
 };
 
-const renderTimelineItem = (lecture, index) => {
-    const { color, text, icon } = getLectureInfo(lecture);
+const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+        case "cancelled":
+            return "red";
+        case "scheduled":
+            return "blue";
+        case "venue_changed":
+            return "orange";
+        case "ongoing":
+            return "green";
+        case "completed":
+            return "gray";
+        default:
+            return "blue";
+    }
+};
+
+const renderTimelinelecture = (lecture, index) => {
     const subject = lecture.subjectName;
     const timeSlotLabel = lecture.timeSlot?.label || "N/A";
     const teacher = lecture.faculty?.[0]?.name || "N/A";
     const room = lecture.rooms?.[0]?.roomCode || "N/A";
+    const updatedRoom = lecture.updatedRoom || null;
+    const status = lecture.status || "Scheduled";
+    const statusColor = getStatusColor(status);
 
     return (
-        <Timeline.Item
+        <Timeline.lecture
             key={index}
-            dot={<div style={{ background: color, borderRadius: '50%', padding: '4px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>}
-            color={color}
-        >
-            <div style={{ marginLeft: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <Text strong style={{ fontSize: '16px' }}>{subject}</Text>
-                    <Tag color={color} style={{ borderRadius: '12px', fontSize: '11px' }}>{text}</Tag>
+            dot={
+                <div
+                    style={{
+                        background: statusColor,
+                        borderRadius: "50%",
+                        padding: "4px",
+                        color: "white",
+                        display: "flex",
+                        alignlectures: "center",
+                        justifyContent: "center",
+                    }}
+                >
                 </div>
-                <div style={{ color: '#666', marginBottom: '4px' }}>
-                    <ClockCircleOutlined style={{ marginRight: '4px' }} />
+            }
+            color={statusColor}
+        >
+            <div style={{ marginLeft: "12px" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignlectures: "center",
+                        gap: "8px",
+                        marginBottom: "4px",
+                    }}
+                >
+                    <Text strong style={{ fontSize: "16px" }}>
+                        {subject}
+                    </Text>
+                    <Tag
+                        color={statusColor}
+                        style={{ borderRadius: "12px", fontSize: "11px" }}
+                    >
+                        {status}
+                    </Tag>
+                </div>
+
+                <div style={{ color: "#666", marginBottom: "4px" }}>
+                    <ClockCircleOutlined style={{ marginRight: "4px" }} />
                     {timeSlotLabel}
                 </div>
-                <div style={{ color: '#666' }}>
-                    <UserOutlined style={{ marginRight: '4px' }} />
-                    {teacher} • {room}
+
+                <div style={{ color: "#666" }}>
+                    <UserOutlined style={{ marginRight: "4px" }} />
+                    {teacher} • <span style={{ textDecoration: (status === 'Venue_Changed' && updatedRoom !== room) ? 'line-through' : 'none', marginRight: status === 'Venue_Changed' ? '8px' : '0' }}>
+                        {room}
+                    </span>
+                    {(status === 'Venue_Changed' && updatedRoom !== room) && <Text strong>{updatedRoom}</Text>}
                 </div>
             </div>
-        </Timeline.Item>
+        </Timeline.lecture>
     );
 };
+
 
 const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, attendanceData, weeklyPerformanceData, recentAnnouncements }) => (
     <Spin spinning={isLoading} tip="Loading Dashboard..." size="large">
@@ -96,7 +154,6 @@ const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, atten
         </div>
 
         <Row gutter={[24, 24]}>
-            {/* Quick Stats Cards */}
             <Col xs={24} style={{ marginBottom: '16px' }}>
                 <Row gutter={[16, 16]}>
                     <Col xs={12} sm={6}>
@@ -126,12 +183,11 @@ const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, atten
                 </Row>
             </Col>
 
-            {/* Main Content Row */}
             <Col xs={24} lg={15}>
-                <Card title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarOutlinedAnt style={{ color: '#1890ff' }} /><span>Today's Schedule</span><Tag color="blue" style={{ marginLeft: 'auto' }}>{today}</Tag></div>} bordered={false} style={cardStyle} bodyStyle={{ padding: '24px' }}>
+                <Card title={<div style={{ display: 'flex', alignlectures: 'center', gap: '8px' }}><CalendarOutlinedAnt style={{ color: '#1890ff' }} /><span>Today's Schedule</span><Tag color="blue" style={{ marginLeft: 'auto' }}>{today}</Tag></div>} bordered={false} style={cardStyle} bodyStyle={{ padding: '24px' }}>
                     {todaysTimetable.length > 0 ? (
                         <Timeline mode="left" style={{ marginTop: '16px' }}>
-                            {todaysTimetable.map(renderTimelineItem)}
+                            {todaysTimetable.map(renderTimelinelecture)}
                         </Timeline>
                     ) : (
                         <Empty description="No classes scheduled for today" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: '40px 0' }} />
@@ -139,10 +195,8 @@ const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, atten
                 </Card>
             </Col>
 
-            {/* Sidebar Content */}
             <Col xs={24} lg={9}>
-                {/* Attendance Chart */}
-                <Card title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><TrophyOutlined style={{ color: '#52c41a' }} /><span>Attendance Overview</span></div>} bordered={false} style={cardStyle} bodyStyle={{ padding: '24px' }}>
+                <Card title={<div style={{ display: 'flex', alignlectures: 'center', gap: '8px' }}><TrophyOutlined style={{ color: '#52c41a' }} /><span>Attendance Overview</span></div>} bordered={false} style={cardStyle} bodyStyle={{ padding: '24px' }}>
                     <div style={{ height: 250, position: 'relative' }}>
                         <ResponsiveContainer><PieChart>
                             <Pie data={attendanceData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} labelLine={false}>
@@ -158,8 +212,7 @@ const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, atten
                     </div>
                 </Card>
 
-                {/* Weekly Performance */}
-                <Card title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CalendarFilled style={{ color: '#722ed1' }} /><span>Weekly Performance</span></div>} style={{ ...cardStyle, marginTop: '24px' }} bordered={false} bodyStyle={{ padding: '24px' }}>
+                <Card title={<div style={{ display: 'flex', alignlectures: 'center', gap: '8px' }}><CalendarFilled style={{ color: '#722ed1' }} /><span>Weekly Performance</span></div>} style={{ ...cardStyle, marginTop: '24px' }} bordered={false} bodyStyle={{ padding: '24px' }}>
                     <div style={{ height: 200 }}>
                         <ResponsiveContainer><BarChart data={weeklyPerformanceData}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -171,16 +224,15 @@ const DashboardContent = ({ isLoading, todaysTimetable, today, quickStats, atten
                     </div>
                 </Card>
 
-                {/* Recent Announcements */}
-                <Card title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><BellOutlined style={{ color: '#fa8c16' }} /><span>Recent Announcements</span></div>} style={{ ...cardStyle, marginTop: '24px' }} bordered={false} bodyStyle={{ padding: '16px' }}>
-                    <List itemLayout="horizontal" dataSource={recentAnnouncements} renderItem={item => (
-                        <List.Item style={{ padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
-                            <List.Item.Meta
-                                avatar={<Avatar icon={<BellOutlined />} style={{ backgroundColor: getPriorityColor(item.priority), color: 'white' }} size="small" />}
-                                title={<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Text strong style={{ fontSize: '14px' }}>{item.title}</Text><Tag color={getPriorityColor(item.priority)} style={{ fontSize: '10px', padding: '2px 6px' }}>{item.category}</Tag></div>}
-                                description={<Text type="secondary" style={{ fontSize: '12px' }}>{item.date}</Text>}
+                <Card title={<div style={{ display: 'flex', alignlectures: 'center', gap: '8px' }}><BellOutlined style={{ color: '#fa8c16' }} /><span>Recent Announcements</span></div>} style={{ ...cardStyle, marginTop: '24px' }} bordered={false} bodyStyle={{ padding: '16px' }}>
+                    <List lectureLayout="horizontal" dataSource={recentAnnouncements} renderlecture={lecture => (
+                        <List.lecture style={{ padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
+                            <List.lecture.Meta
+                                avatar={<Avatar icon={<BellOutlined />} style={{ backgroundColor: getPriorityColor(lecture.priority), color: 'white' }} size="small" />}
+                                title={<div style={{ display: 'flex', alignlectures: 'center', gap: '8px' }}><Text strong style={{ fontSize: '14px' }}>{lecture.title}</Text><Tag color={getPriorityColor(lecture.priority)} style={{ fontSize: '10px', padding: '2px 6px' }}>{lecture.category}</Tag></div>}
+                                description={<Text type="secondary" style={{ fontSize: '12px' }}>{lecture.date}</Text>}
                             />
-                        </List.Item>
+                        </List.lecture>
                     )} />
                 </Card>
             </Col>

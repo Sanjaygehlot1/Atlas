@@ -11,6 +11,7 @@ import { ApiResponse } from '../Utils/ApiResponse.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { ApiError } from '../Utils/ApiError.js';
 import { Lecture } from '../Models/currentLecture.model.js';
+import Notification from '../Models/notifications.model.js';
 
 const generateRecordHash = (record) => {
   const dataString = [
@@ -145,9 +146,9 @@ export async function getTimetableForAClass(req, res) {
 
     const date = new Date();
 
-    const timetable = await Lecture.find({ class: className, date })
+    const timetable = await Lecture.find({ class: className })
       .populate('year', 'name')
-      .populate('timeSlot', 'label')
+      .populate('timeSlot', 'label startTime endTime')
       .populate('faculty', 'name code')
       .populate('rooms', 'roomCode type')
       .select(' -createdAt -updatedAt -entryHash').exec();
@@ -179,7 +180,7 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
     const date = new Date();
 
     const schedule = await Lecture.find({
-      faculty: { $in: ["688ccdb6fe1bdf7b7b228965"] },
+      faculty: { $in: ["68860d94cf2bfd5edb077454"] },
 
     }).populate('year', 'name')
       .populate('timeSlot', 'label')
@@ -204,21 +205,40 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
 
 })
 
+const sendNotificationToClass = async (data) => {
+
+  try {
+    console.log(data)
+    
+    await Notification.create({
+      recipientClass: data.recipientClass,
+      title: data.title,
+      message: data.message,
+      date: new Date(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'Changes',
+      sender: data.sender,
+      relatedLecture : data.relatedLecture
+    })
+
+  } catch (error) {
+    console.log(error.message)
+    throw new ApiError(401, "Notification sending failed.");
+  }
+
+}
+
 
 export const updateLectureStatus = AsyncHandler(async (req, res) => {
-  console.log("updateLectureStatus triggered");
 
   const { lectureId } = req.params;
   const { status, updatedRoom } = req.body;
-  console.log(req.body)
 
-  console.log(lectureId, status)
 
   if (!status) {
     throw new ApiError(400, "No update status provided.");
   }
 
-  console.log(status);
 
   if (status === "Venue_Changed") {
 
@@ -235,7 +255,6 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
     throw new ApiError(404, "Lecture not found.");
   }
 
-  console.log(lecture)
 
   lecture.status = status;
   if (status === "Venue_Changed" && updatedRoom) {
@@ -243,34 +262,35 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
   }
 
   await lecture.save();
-  console.log("Updated Lecture:", lecture);
 
 
-  console.log(updatedRoom)
-  let message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been ${status.toLowerCase()}.`;
+  let message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been ${status.toLowerCase()} for today.`;
 
   if (updatedRoom != undefined) {
     message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been  shifted to Room ${updatedRoom} for today.`;
   }
-  console.log("Lectreeeeee:", lecture)
 
   const io = req.app.get('io');
-  console.log(req.app)
-  const notifyMessage = `The ${lecture.subjectName} lecture  has been ${status.replace('_', ' ')}.`;
-  console.log("Messagegegege", notifyMessage)
 
-  // Emit an event to the specific class's room
+
+
   io.to(lecture.class).emit('lecture_update', {
-    lectureId: lecture._id,
+    lecture: lecture.subjectName,
+    title : `${lecture.subjectName} Lecture Update`,
     status: status,
-    message: notifyMessage,
-    newVenue: updatedRoom
+    message: message,
+    newVenue: updatedRoom,
+    lectureId : lecture._id,
+    className : lecture.class
   });
 
-  // await sendNotificationToClass(lecture.class, "Lecture Status Update", message);
+  await sendNotificationToClass({title : `${lecture.subjectName} Lecture Update`, message, sender : lecture.faculty[0].name, relatedLecture : lecture.subjectName, lectureId : lecture._id , recipientClass : lecture.class});
+
 
   return res.status(200).json(new ApiResponse(200, lecture, message));
 });
+
+
 
 export const getCompleteTimetable = AsyncHandler(async (req, res) => {
 
