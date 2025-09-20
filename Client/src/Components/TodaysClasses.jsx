@@ -13,22 +13,27 @@ const TodaysClasses = () => {
     const { user } = useAuth();
     const { message } = App.useApp();
     const [todaysClasses, setTodaysClasses] = useState([]);
+    const [fetched, setfetched] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLecture, setSelectedLecture] = useState(null);
     const navigate = useNavigate();
+
+    console.log(todaysClasses)
+
     useEffect(() => {
-        if (todaysClasses.length === 0) {
+        if (!fetched) {
             const getTodaysClasses = async () => {
                 try {
-                    const response = await getTeacherSchedule(user?._id);
+                    const response = await getTeacherSchedule();
                     setTodaysClasses(response);
+                    setfetched(true);
                 } catch (error) {
                     message.error("Failed to load today's classes.");
                 }
             }
             getTodaysClasses();
         }
-    }, [user, todaysClasses])
+    }, [user, fetched])
 
     const handleOpenChangeVenueModal = (lecture) => {
         setSelectedLecture(lecture);
@@ -63,7 +68,8 @@ const TodaysClasses = () => {
             style={{ width: '100%' }}
         >
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {todaysClasses.map((item, index) => {
+                {todaysClasses.length == 0 ? "No lectures scheduled for today." :
+                todaysClasses.map((item, index) => {
                     const handleVenueSubmit = (updatedRoom) => {
                         setIsModalOpen(false);
                         updateStatus(selectedLecture, "Venue_Changed", updatedRoom);

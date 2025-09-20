@@ -65,42 +65,15 @@ export const uploadTimetable = async (data) => {
     }
 }
 
-export const getTeacherSchedule = async (facultyId) => {
+export const getTeacherSchedule = async () => {
     try {
     const res = await AxiosInstance.get('/timetable/get-teacher-schedule');
         console.log(res.data);
-    const excepRes = await AxiosInstance.post('/timetable/get-faculty-exceptional-timetable', { facultyId });
-        console.log(excepRes.data);
 
 
         console.log(res.data.data);
 
-
-        const exceptionsMap = new Map(
-            excepRes.data.data.map(exception => [exception.timetableEntry?._id, { status: exception.status, updatedRoom: exception.updatedRoom }])
-        );
-
-        console.log(exceptionsMap);
-
-        // Merge the template with the exceptions
-        const mergedTimetable = res.data.data.map(lecture => {
-            // Check if the current lecture's ID exists in our exceptions map
-            if (exceptionsMap.has(lecture._id)) {
-                // If it does, override the status
-                return { ...lecture, status: exceptionsMap.get(lecture._id).status, updatedRoom: exceptionsMap.get(lecture._id).updatedRoom };
-            } else {
-                // Otherwise, it's a normal, scheduled lecture
-                return { ...lecture, status: 'Scheduled' };
-            }
-        });
-
-
-
-
-
-        return mergedTimetable;
-
-        return res.data;
+        return res.data.data;
     } catch (error) {
         console.error('Error fetching teacher schedule:', error);
         throw error;

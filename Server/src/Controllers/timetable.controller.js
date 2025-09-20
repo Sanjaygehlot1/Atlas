@@ -1,6 +1,5 @@
 import parseYearlyTimetableExcel from '../Utils/parseTimetable.js';
 import { Timetable } from '../Models/timetable.model.js';
-import LectureException from '../Models/exceptionLectures.model.js';
 import Year from '../Models/year.model.js';
 import TimeSlot from '../Models/timeSlots.model.js';
 import Faculty from '../Models/faculty.model.js';
@@ -11,6 +10,7 @@ import fs from 'fs';
 import { ApiResponse } from '../Utils/ApiResponse.js';
 import { AsyncHandler } from '../Utils/AsyncHandler.js';
 import { ApiError } from '../Utils/ApiError.js';
+import { Lecture } from '../Models/currentLecture.model.js';
 
 const generateRecordHash = (record) => {
   const dataString = [
@@ -74,7 +74,7 @@ export async function handleTimetableUpload(req, res) {
 
         const timeSlotDoc = await TimeSlot.findOneAndUpdate({ label: record.timeSlot }, { $setOnInsert: { label: record.timeSlot, startTime: '00:00', endTime: '00:00' } }, { upsert: true, new: true });
 
-        const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT', uid : decodedToken.uid } }, { upsert: true, new: true });
+        const facultyDoc = await Faculty.findOneAndUpdate({ code: record.faculty }, { $setOnInsert: { code: record.faculty, name: 'TBD', department: 'INFT', uid: decodedToken.uid } }, { upsert: true, new: true });
 
         const roomDoc = await Room.findOneAndUpdate({ roomCode: record.room }, { $setOnInsert: { roomCode: record.room, floor: 'TBD' } }, { upsert: true, new: true });
 
@@ -142,24 +142,26 @@ export async function getTimetableForAClass(req, res) {
   try {
 
 
-    // Remove day filter so all notes for the class are shown
 
-    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+    const date = new Date();
 
-    const timetable = await Timetable.find({ class: className, day })
+    const timetable = await Lecture.find({ class: className, date })
       .populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
       .populate('rooms', 'roomCode type')
       .select(' -createdAt -updatedAt -entryHash').exec();
 
-    console.log(timetable);
-    console.log();
-
-    if (!timetable || timetable.length === 0) {
-      return res.status(404).json({ message: `No timetable found for class ${className} for today.` });
+    if (!timetable) {
+      return res.status(401).json(new ApiError(401, `No timetable found for class ${className}.`));
     }
+
+    if (timetable.length === 0) {
+      return res.status(200).json(new ApiResponse(200, [], `No lectures scheduled for today.`));
+    }
+
     return res.status(200).json(new ApiResponse(200, timetable, `Timetable for class ${className} retrieved successfully.`));
+
   } catch (error) {
     throw new ApiError(500, "An error occurred while retrieving the timetable.");
   }
@@ -174,84 +176,34 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
     return new ApiError(400, "Unauthorized Access: No Token provided.");
   }
   try {
-      console.log(decodedToken);
-    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
+    const date = new Date();
 
-     const teacher = await Faculty.findOne({uid : decodedToken.uid});
-     console.log("!!",teacher);
-
-    const schedule = await Timetable.find({
-      faculty: { $in: ["68860d94cf2bfd5edb07745b"] },
-      day: day
-    })
-      .populate('year', 'name')
+    const schedule = await Lecture.find({
+      faculty: { $in: ["688ccdb6fe1bdf7b7b228965"] },
+      
+    }).populate('year', 'name')
       .populate('timeSlot', 'label')
       .populate('faculty', 'name code')
       .populate('rooms', 'roomCode floor')
       .select(' -createdAt -updatedAt -entryHash').exec();
 
-    console.log(schedule);
 
-    if (!schedule || schedule.length === 0) {
-      return res.status(404).json({ message: `No schedule found for today.` });
+   if (!schedule) {
+      return res.status(401).json(new ApiError(401, `Error fetching schedule.`));
     }
+
+    if (schedule.length === 0) {
+      return res.status(200).json(new ApiResponse(200, [], `No lectures scheduled for today.`));
+    }
+
     return res.status(200).json(new ApiResponse(200, schedule, `Schedule for today retrieved successfully.`));
+
   } catch (error) {
     throw new ApiError(500, error.message);
   }
 
 })
 
-export async function getExceptionsForAClass(req, res) {
-  const { className } = req.body;
-  if (!className) {
-    return res.status(400).json({ error: 'Class name is required.' });
-  }
-  try {
-    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
-    console.log(day)
-    const exceptions = await LectureException.find({ class: className, day: day.trim() })
-      .populate('timetableEntry', 'subjectName timeSlot class')
-      .populate('timetableEntry.year', 'name')
-      .populate('timetableEntry.faculty', 'name code')
-      .populate('timetableEntry.rooms', 'roomCode floor')
-      .select(' -createdAt -updatedAt -entryHash').exec();
-
-    if (!exceptions || exceptions.length === 0) {
-      return res.status(200).json(new ApiResponse(200, [], `No exceptions found for class ${className} for today.`));
-    }
-    console.log(exceptions.length)
-    return res.status(200).json(new ApiResponse(200, exceptions, `Exceptions for class ${className} retrieved successfully.`));
-  } catch (error) {
-    throw new ApiError(500, "An error occurred while retrieving the exceptions.");
-  }
-}
-
-export async function getExceptionsForAFaculty(req, res) {
-  const { facultyId } = req.body;
-  console.log(facultyId)
-  if (!facultyId) {
-    return res.status(400).json({ error: 'Faculty ID is required.' });
-  }
-  try {
-    const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date())
-    console.log(day)
-    const exceptions = await LectureException.find({ faculty: facultyId, day: day })
-      .populate('timetableEntry', 'subjectName timeSlot class')
-      .populate('timetableEntry.year', 'name')
-      .populate('timetableEntry.faculty', 'name code')
-      .populate('timetableEntry.rooms', 'roomCode floor')
-      .select(' -createdAt -updatedAt -entryHash').exec();
-
-    if (!exceptions || exceptions.length === 0) {
-      return res.status(200).json(new ApiResponse(200, [], `No exceptions found for today.`));
-    }
-    console.log(exceptions)
-    return res.status(200).json(new ApiResponse(200, exceptions, `Exceptions retrieved successfully.`));
-  } catch (error) {
-    throw new ApiError(500, "An error occurred while retrieving the exceptions.");
-  }
-}
 
 export const updateLectureStatus = AsyncHandler(async (req, res) => {
   console.log("updateLectureStatus triggered");
@@ -307,112 +259,112 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
   if (updatedRoom != undefined) {
     message = `The ${lecture.subjectName} lecture at ${lecture.timeSlot.label} has been  shifted to Room ${updatedRoom} on ${lecture.day}.`;
   }
-  console.log("Lectreeeeee:",lecture)
+  console.log("Lectreeeeee:", lecture)
 
   const io = req.app.get('io');
   console.log(req.app)
-    const notifyMessage = `The ${lecture.subjectName} lecture  has been ${status.replace('_', ' ')}.`;
-    console.log("Messagegegege",notifyMessage)
-    
-    // Emit an event to the specific class's room
-    io.to(lecture.class).emit('lecture_update', {
-        lectureId: lecture._id,
-        status: status,
-        message: notifyMessage,
-        newVenue: updatedRoom
-    });
+  const notifyMessage = `The ${lecture.subjectName} lecture  has been ${status.replace('_', ' ')}.`;
+  console.log("Messagegegege", notifyMessage)
+
+  // Emit an event to the specific class's room
+  io.to(lecture.class).emit('lecture_update', {
+    lectureId: lecture._id,
+    status: status,
+    message: notifyMessage,
+    newVenue: updatedRoom
+  });
 
   // await sendNotificationToClass(lecture.class, "Lecture Status Update", message);
 
   return res.status(200).json(new ApiResponse(200, lectureException, message));
 });
 
-export const getCompleteTimetable = AsyncHandler(async (req,res)=>{
-  
+export const getCompleteTimetable = AsyncHandler(async (req, res) => {
+
   const timetable = await Timetable.aggregate([
-  // Join with Year collection
-  {
-    $lookup: {
-      from: "years",
-      localField: "year",
-      foreignField: "_id",
-      as: "yearDetails"
-    }
-  },
-  { $unwind: "$yearDetails" },
+    // Join with Year collection
+    {
+      $lookup: {
+        from: "years",
+        localField: "year",
+        foreignField: "_id",
+        as: "yearDetails"
+      }
+    },
+    { $unwind: "$yearDetails" },
 
-  // Join with TimeSlot collection
-  {
-    $lookup: {
-      from: "timeslots",
-      localField: "timeSlot",
-      foreignField: "_id",
-      as: "timeSlotDetails"
-    }
-  },
-  { $unwind: "$timeSlotDetails" },
+    // Join with TimeSlot collection
+    {
+      $lookup: {
+        from: "timeslots",
+        localField: "timeSlot",
+        foreignField: "_id",
+        as: "timeSlotDetails"
+      }
+    },
+    { $unwind: "$timeSlotDetails" },
 
-  // Join with Rooms collection
-  {
-    $lookup: {
-      from: "rooms",
-      localField: "rooms",
-      foreignField: "_id",
-      as: "roomDetails"
-    }
-  },
+    // Join with Rooms collection
+    {
+      $lookup: {
+        from: "rooms",
+        localField: "rooms",
+        foreignField: "_id",
+        as: "roomDetails"
+      }
+    },
 
-  // Join with Faculty collection
-  {
-    $lookup: {
-      from: "faculties",
-      localField: "faculty",
-      foreignField: "_id",
-      as: "facultyDetails"
-    }
-  },
+    // Join with Faculty collection
+    {
+      $lookup: {
+        from: "faculties",
+        localField: "faculty",
+        foreignField: "_id",
+        as: "facultyDetails"
+      }
+    },
 
-  // Optional: Clean up and shape the final output
-  {
-    $project: {
-      _id: 1,
-      day: 1,
-      subjectName: 1,
-      lectureType: 1,
-      class: 1,
-      entryHash: 1,
-      createdAt: 1,
-      updatedAt: 1,
+    // Optional: Clean up and shape the final output
+    {
+      $project: {
+        _id: 1,
+        day: 1,
+        subjectName: 1,
+        lectureType: 1,
+        class: 1,
+        entryHash: 1,
+        createdAt: 1,
+        updatedAt: 1,
 
-      year: "$yearDetails.name", // or any field you want
-      timeSlot: {
-        label: "$timeSlotDetails.label",
-        
-      },
-      rooms: {
-      	roomCode : "$roomDetails.roomCode",
-        type: "$roomDetails.type"
-      }, // or array of objects if needed
-      faculty: {
-        $map: {
-          input: "$facultyDetails",
-          as: "fac",
-          in: {
-            name: "$$fac.name",
-            code: "$$fac.code"
+        year: "$yearDetails.name", // or any field you want
+        timeSlot: {
+          label: "$timeSlotDetails.label",
+
+        },
+        rooms: {
+          roomCode: "$roomDetails.roomCode",
+          type: "$roomDetails.type"
+        }, // or array of objects if needed
+        faculty: {
+          $map: {
+            input: "$facultyDetails",
+            as: "fac",
+            in: {
+              name: "$$fac.name",
+              code: "$$fac.code"
+            }
           }
         }
       }
     }
-  }
-]
-);
+  ]
+  );
 
   console.log(timetable);
 
-  if(timetable.length === 0){
-    return res.status(200).json(new ApiResponse(404,[],"No timetable found."));
+  if (timetable.length === 0) {
+    return res.status(200).json(new ApiResponse(404, [], "No timetable found."));
   }
 
-  return res.status(200).json(new ApiResponse(200,timetable,"Timetable retrieved successfully."));
+  return res.status(200).json(new ApiResponse(200, timetable, "Timetable retrieved successfully."));
 })

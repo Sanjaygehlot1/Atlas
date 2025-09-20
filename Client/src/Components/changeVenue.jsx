@@ -31,7 +31,6 @@ const ChangeVenueModal = ({ open, onCancel, onSubmit, currentRoom }) => {
         form.resetFields(); // Reset the form after successful submission
       })
       .catch(info => {
-        console.log('Validate Failed:', info);
         message.error("Please select a valid room.");
       });
   };

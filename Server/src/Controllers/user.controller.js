@@ -95,7 +95,6 @@ const getCurrentUser = AsyncHandler(async (req, res) => {
 
 
   const user = await User.findOne({ googleId : decodedToken.googleId }).select("-refreshToken");
-  console.log("!1", user)
   if (!user) {
     throw new ApiError(404, "user not found");
   }
