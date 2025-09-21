@@ -9,6 +9,7 @@ import TimetableUploadForm from './Pages/Teacher/uploadTimtable.jsx'
 import Dashboard from './Pages/Teacher/teacherDashboard.jsx'
 import LandingPage from './Pages/Others/LandingPage.jsx'
 import StudentDashboard from './Pages/Student/studentDashboard.jsx'
+import ConnectPage from './Pages/Others/connect.jsx'
 import AcademicInfoComponent from './Pages/Student/academicInfo.jsx'
 import AcademicInfoPage from './Pages/Student/academicInfo.jsx'
 import PublicRoute from './Helper/publicRoute.jsx'
@@ -89,6 +90,10 @@ const router = createBrowserRouter([
           {
             path: 'mynote',
             element: <MyNote />
+          },
+          {
+            path: 'connect',
+            element: <ConnectPage />
           }
         ]
       },

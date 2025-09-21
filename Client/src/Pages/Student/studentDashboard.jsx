@@ -49,6 +49,7 @@ const StudentDashboard = () => {
         const path = location.pathname;
         if (path.includes('mynote')) return '3';
         if (path.includes('full-timetable')) return '2';
+        if (path.includes('connect')) return '7';
         return '1';
     };
 
@@ -120,6 +121,9 @@ const StudentDashboard = () => {
                 break;
             case '3':
                 navigate('/student/dashboard/mynote');
+                break;
+            case '7':
+                navigate('/student/dashboard/connect');
                 break;
             case '6':
                 handleLogout();

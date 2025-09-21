@@ -1,12 +1,13 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { AppstoreOutlined, CalendarOutlined, BookOutlined, BellOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CalendarOutlined, BookOutlined, BellOutlined, SettingOutlined, LogoutOutlined, VideoCameraFilled } from '@ant-design/icons';
 
 const menuItems = [
     { key: '1', icon: <AppstoreOutlined />, label: 'Dashboard' },
     { key: '2', icon: <CalendarOutlined />, label: 'Full Timetable' },
     { key: '3', icon: <BookOutlined />, label: 'My Notes' },
     { key: '4', icon: <BellOutlined />, label: 'Announcements' },
+    { key: '7', icon: <VideoCameraFilled style={{ color: '#52c41a', fontSize: 20 }} />, label: 'Connect' },
     { key: '5', icon: <SettingOutlined />, label: 'Settings' },
     { key: '6', icon: <LogoutOutlined />, label: 'Logout' },
 ];
