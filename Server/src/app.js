@@ -77,7 +77,7 @@ app.get(
 
             console.log("Generated Token:", token);
 
-            res.cookie("token", token, { httpOnly: true });
+            res.cookie("token", token, { httpOnly: true , secure: true, sameSite : 'none'});
             if (user.hasFilledDetails) {
                 res.redirect("http://localhost:5173/student/dashboard");
             } else {
