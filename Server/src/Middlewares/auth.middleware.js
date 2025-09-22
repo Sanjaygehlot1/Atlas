@@ -6,7 +6,8 @@ import { AsyncHandler } from "../Utils/AsyncHandler.js";
 const AuthMiddleware = AsyncHandler(async (req, res, next) => {
   try {
     const token = req.cookies?.token;
-
+console.log("Cookies:", req.cookies);
+    console.log("Token from cookies:", token);
 
     if (!token) {
       return next(new ApiError(401, "Unauthorized Access"));

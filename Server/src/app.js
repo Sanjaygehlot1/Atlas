@@ -75,6 +75,8 @@ app.get(
                 { expiresIn: process.env.JWT_EXPIRES_IN }
             );
 
+            console.log("Generated Token:", token);
+
             res.cookie("token", token, { httpOnly: true });
             if (user.hasFilledDetails) {
                 res.redirect("http://localhost:5173/student/dashboard");
