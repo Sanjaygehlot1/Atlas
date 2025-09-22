@@ -37,7 +37,7 @@ const lectureSchema = new Schema({
     required: true,
   },
   date: {   // key difference from template
-    type: Date,
+    type: String,
     required: true,
   },
   status: {

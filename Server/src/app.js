@@ -30,8 +30,9 @@ app.use(cookieParser())
 app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }))
 app.use(passport.initialize())
 app.use(passport.session())
+app.set('trust proxy', 1)
 
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"]}
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
 ))
 
 app.get(
@@ -42,8 +43,8 @@ app.get(
             const profile = req.user;
 
 
-            if(profile.email && !profile.email.endsWith("@atharvacoe.ac.in")){
-                
+            if (profile.email && !profile.email.endsWith("@atharvacoe.ac.in")) {
+
                 return res.redirect('http://localhost:5173/unauthorized');
 
             }
@@ -64,7 +65,7 @@ app.get(
 
             const token = jwt.sign(
                 {
-                    _id: user._id,          
+                    _id: user._id,
                     googleId: user.googleId,
                     email: user.email,
                 },
@@ -91,37 +92,38 @@ app.get("/profile", (req, res) => {
 })
 
 cron.schedule("0 0 * * *", async () => {
-  try {
-    const today = new Date();
-    const dayOfWeek = today.toLocaleDateString("en-US", { weekday: "long" });
+    try {
+        const date = new Date();
+        const formattedDate = date.toLocaleDateString('en-GB')   
+        const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" });
 
-    console.log(`⏰ Running daily timetable job for ${dayOfWeek}`);
+        console.log(`⏰ Running daily timetable job for ${dayOfWeek}`);
 
-    const templateLectures = await Timetable.find({ day: dayOfWeek });
+        const templateLectures = await Timetable.find({ day: dayOfWeek });
 
-    if (!templateLectures.length) {
-      console.log("⚠️ No timetable entries found for today.");
-      return;
+        if (!templateLectures.length) {
+            console.log("⚠️ No timetable entries found for today.");
+            return;
+        }
+
+        const lectures = templateLectures.map(t => ({
+            timetableRef: t._id,
+            year: t.year,
+            class: t.class,
+            subjectName: t.subjectName,
+            faculty: t.faculty,
+            rooms: t.rooms,
+            lectureType: t.lectureType,
+            timeSlot: t.timeSlot,
+            date: formattedDate,
+            status: "Scheduled"
+        }));
+
+        await Lecture.insertMany(lectures);
+        console.log("✅ Today’s lectures inserted successfully.");
+    } catch (err) {
+        console.error("❌ Cron job failed:", err.message);
     }
-
-    const lectures = templateLectures.map(t => ({
-      timetableRef: t._id,
-      year: t.year,
-      class: t.class,
-      subjectName: t.subjectName,
-      faculty: t.faculty,
-      rooms: t.rooms,
-      lectureType: t.lectureType,
-      timeSlot: t.timeSlot,
-      date: today,
-      status: "scheduled"
-    }));
-
-    await Lecture.insertMany(lectures);
-    console.log("✅ Today’s lectures inserted successfully.");
-  } catch (err) {
-    console.error("❌ Cron job failed:", err.message);
-  }
 });
 
 

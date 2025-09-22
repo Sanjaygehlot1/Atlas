@@ -110,7 +110,7 @@ const SignIn = () => {
             </Text>
           </div>
 
-          <Link to={`http://localhost:8000/auth/google`}> 
+          <Link to={`${import.meta.env.VITE_SERVER}/auth/google`}> 
           <Button
             type="primary"
             icon={<GoogleOutlined />}

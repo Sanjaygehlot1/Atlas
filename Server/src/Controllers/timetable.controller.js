@@ -142,11 +142,10 @@ export async function getTimetableForAClass(req, res) {
   }
   try {
 
-
-
     const date = new Date();
+    const formattedDate = date.toLocaleDateString('en-GB')
 
-    const timetable = await Lecture.find({ class: className })
+    const timetable = await Lecture.find({ class: className, date : formattedDate })
       .populate('year', 'name')
       .populate('timeSlot', 'label startTime endTime')
       .populate('faculty', 'name code')
@@ -209,7 +208,7 @@ const sendNotificationToClass = async (data) => {
 
   try {
     console.log(data)
-    
+
     await Notification.create({
       recipientClass: data.recipientClass,
       title: data.title,
@@ -218,7 +217,7 @@ const sendNotificationToClass = async (data) => {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       type: 'Changes',
       sender: data.sender,
-      relatedLecture : data.relatedLecture
+      relatedLecture: data.relatedLecture
     })
 
   } catch (error) {
@@ -276,15 +275,15 @@ export const updateLectureStatus = AsyncHandler(async (req, res) => {
 
   io.to(lecture.class).emit('lecture_update', {
     lecture: lecture.subjectName,
-    title : `${lecture.subjectName} Lecture Update`,
+    title: `${lecture.subjectName} Lecture Update`,
     status: status,
     message: message,
     newVenue: updatedRoom,
-    lectureId : lecture._id,
-    className : lecture.class
+    lectureId: lecture._id,
+    className: lecture.class
   });
 
-  await sendNotificationToClass({title : `${lecture.subjectName} Lecture Update`, message, sender : lecture.faculty[0].name, relatedLecture : lecture.subjectName, lectureId : lecture._id , recipientClass : lecture.class});
+  await sendNotificationToClass({ title: `${lecture.subjectName} Lecture Update`, message, sender: lecture.faculty[0].name, relatedLecture: lecture.subjectName, lectureId: lecture._id, recipientClass: lecture.class });
 
 
   return res.status(200).json(new ApiResponse(200, lecture, message));

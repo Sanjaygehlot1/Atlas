@@ -14,11 +14,10 @@ const ProfileModal = ({ isVisible, onClose, user, onSave }) => {
 
     const handleSave = async () => {
         try {
-            // Here you would call the onSave prop from the parent component
-            // to update the user data in the backend or global state.
+            
             await onSave({ ...user, phone: editedPhone });
             message.success('Profile updated successfully!');
-            setIsEditing(false); // Switch back to view mode
+            setIsEditing(false); 
         } catch (error) {
             console.error('Failed to save profile:', error);
             message.error('Failed to save changes.');
@@ -27,7 +26,7 @@ const ProfileModal = ({ isVisible, onClose, user, onSave }) => {
 
     const handleCancelEdit = () => {
         setIsEditing(false);
-        setEditedPhone(user.phone || ''); // Reset the input to the original value
+        setEditedPhone(user.phone || '');
     };
 
     const renderPhoneField = () => {
