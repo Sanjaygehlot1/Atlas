@@ -89,6 +89,7 @@ const updateAcademicInfo = AsyncHandler(async (req, res) => {
 const getCurrentUser = AsyncHandler(async (req, res) => {
 
   const decodedToken = req.user;
+  console.log("Decoded Token:", decodedToken);
   if (!decodedToken.googleId) {
     throw new ApiError(401, "Unauthorized access");
   }

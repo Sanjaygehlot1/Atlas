@@ -63,6 +63,8 @@ app.get(
                 { new: true, upsert: true }
             );
 
+            console.log("User :: ",user)
+
             const token = jwt.sign(
                 {
                     _id: user._id,

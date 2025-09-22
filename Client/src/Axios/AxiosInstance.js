@@ -1,11 +1,12 @@
 import axios from "axios";
-import { getAuth } from "firebase/auth";
 import { auth } from "../firebase/firebaseConfig";
 
 const AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
+
+
 
 AxiosInstance.interceptors.request.use(async (config) => {
   const user = auth.currentUser;
