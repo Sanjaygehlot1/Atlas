@@ -78,9 +78,10 @@ app.get(
             console.log("Generated Token:", token);
 
             const options = {
-                Httponly: true,
+                httpOnly: true,
                 secure: true,
-                sameSite: 'none'
+                sameSite: 'None',
+                maxAge : 1000 * 60 * 60 * 24,
             }
 
             res.cookie("token", token, options);
