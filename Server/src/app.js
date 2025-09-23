@@ -26,11 +26,11 @@ app.use(express.json({ limit: "16kb" }))
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(cookieParser())
 
+app.set('trust proxy', 1)
 
-app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }))
+app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true, cookie: { secure: true, sameSite: "None" }, proxy: true }))
 app.use(passport.initialize())
 app.use(passport.session())
-app.set('trust proxy', 1)
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
 ))
@@ -81,7 +81,7 @@ app.get(
                 httpOnly: true,
                 secure: true,
                 sameSite: 'None',
-                maxAge : 1000 * 60 * 60 * 24,
+                maxAge: 1000 * 60 * 60 * 24,
             }
 
             res.cookie("token", token, options);
