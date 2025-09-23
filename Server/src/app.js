@@ -63,7 +63,7 @@ app.get(
                 { new: true, upsert: true }
             );
 
-            console.log("User :: ",user)
+            console.log("User :: ", user)
 
             const token = jwt.sign(
                 {
@@ -77,7 +77,13 @@ app.get(
 
             console.log("Generated Token:", token);
 
-            res.cookie("token", token, { httpOnly: true , secure: false, sameSite : 'lax'});
+            const options = {
+                Httponly: true,
+                secure: true,
+                sameSite: 'none'
+            }
+
+            res.cookie("token", token, options);
             if (user.hasFilledDetails) {
                 res.redirect("http://localhost:5173/student/dashboard");
             } else {
@@ -98,7 +104,7 @@ app.get("/profile", (req, res) => {
 cron.schedule("0 0 * * *", async () => {
     try {
         const date = new Date();
-        const formattedDate = date.toLocaleDateString('en-GB')   
+        const formattedDate = date.toLocaleDateString('en-GB')
         const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" });
 
         console.log(`⏰ Running daily timetable job for ${dayOfWeek}`);

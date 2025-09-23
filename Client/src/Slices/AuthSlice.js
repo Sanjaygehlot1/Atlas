@@ -10,7 +10,16 @@ class ApiError extends Error {
 }
 
 
-
+const logOut = async () => {
+    try {
+        await AxiosInstance.post('/users/auth/logout');
+        return { message: 'Logout successful' };
+    } catch (error) {
+        throw new ApiError(
+            error.response?.status || 500,
+            error.response?.data?.message || 'An error occurred while logging out.')
+    }
+}
 
 const updateAcademicInfo = async (data) => {
     try {
@@ -28,6 +37,7 @@ const updateAcademicInfo = async (data) => {
 
 
 export {
-    updateAcademicInfo
+    updateAcademicInfo,
+    logOut
 };
 

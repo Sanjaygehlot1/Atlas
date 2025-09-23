@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import axios from 'axios';
 import { auth } from "../firebase/firebaseConfig.js";
 import { AxiosInstance } from '../Axios/AxiosInstance.js';
+import { logOut } from '../Slices/AuthSlice.js';
 
 const AuthContext = createContext(null);
 
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await signOut(auth);
+            await logOut();
             setUser(null);
             console.log('AuthContext: User state cleared');
         } catch (error) {

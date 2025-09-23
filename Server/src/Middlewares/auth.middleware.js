@@ -1,4 +1,3 @@
-import User from "../Models/students.model.js"; // your user model
 import jwt from "jsonwebtoken";
 import { ApiError } from "../Utils/ApiError.js";
 import { AsyncHandler } from "../Utils/AsyncHandler.js";
@@ -6,7 +5,7 @@ import { AsyncHandler } from "../Utils/AsyncHandler.js";
 const AuthMiddleware = AsyncHandler(async (req, res, next) => {
   try {
     const token = req.cookies?.token;
-console.log("Cookies:", req.cookies);
+    console.log("Cookies:", req.cookies);
     console.log("Token from cookies:", token);
 
     if (!token) {
@@ -15,7 +14,7 @@ console.log("Cookies:", req.cookies);
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-  
+
     req.user = decodedToken;
     next();
   } catch (error) {
@@ -24,12 +23,12 @@ console.log("Cookies:", req.cookies);
 });
 
 
-const verifyToken = async (req,res,next) =>{
+const verifyToken = async (req, res, next) => {
   try {
-      const request = req.headers;
+    const request = req.headers;
     const token = req.headers.authorization.split(" ")[1];
 
-    if(!token){
+    if (!token) {
       return new ApiError(401, "No token provided");
     }
 
