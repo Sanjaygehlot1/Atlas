@@ -36,7 +36,7 @@ app.use(session({
     name: 'plannex.sid',
     cookie: {
       secure: true,     
-      httpOnly: true,    
+      httpOnly: false,    
       sameSite: 'None'   
     }
 }));
@@ -88,7 +88,7 @@ app.get(
             console.log("Generated Token:", token);
 
             const options = {
-                httpOnly: true,
+                httpOnly: false,
                 secure: true,
                 sameSite: 'None',
                 maxAge: 1000 * 60 * 60 * 24,
