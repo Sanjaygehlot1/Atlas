@@ -28,8 +28,18 @@ app.use(cookieParser())
 
 app.set('trust proxy', 1)
 
-app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true, cookie: { secure: true, sameSite: "None" }, proxy: true }))
-app.use(passport.initialize())
+app.use(session({
+    secret: "Come along man let's build something awesome together",
+    resave: false,
+    saveUninitialized: true,
+    proxy: true,
+    name: 'plannex.sid',
+    cookie: {
+      secure: true,     
+      httpOnly: true,    
+      sameSite: 'None'   
+    }
+}));
 app.use(passport.session())
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
