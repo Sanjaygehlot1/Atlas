@@ -104,7 +104,7 @@ const LandingPage = () => {
                   letterSpacing: "0.5px"
                 }}
               >
-                Atlas
+                PlanneX
               </Title>
             </Col>
             <Col>

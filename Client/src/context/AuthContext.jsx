@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
                 const response = await AxiosInstance.get('/users/current-user');
                 
                 if (response.data.success) {
+                    console.log(response.data.data)
                     setUser(response.data.data);
                     console.log("User session found and state set.");
                 } else {

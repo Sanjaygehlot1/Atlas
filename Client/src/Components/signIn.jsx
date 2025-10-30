@@ -110,7 +110,7 @@ const SignIn = () => {
             </Text>
           </div>
 
-          <Link to={`https://atlas-production-server.up.railway.app/auth/google`}> 
+          <Link to={`http://localhost:8000/auth/google`}> 
           <Button
             type="primary"
             icon={<GoogleOutlined />}

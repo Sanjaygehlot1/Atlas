@@ -5,8 +5,9 @@ import cookieParser from 'cookie-parser';
 import { userRouter } from './Routes/user.routes.js';
 import noteRoutes from './Routes/notes.routes.js';
 import User from './Models/students.model.js';
-import passport from "passport"
 import session from "express-session"
+import '../src/auth/googleAuth.js'
+import passport from 'passport';
 import "./auth/googleAuth.js"
 import jwt from 'jsonwebtoken'
 import cron from "node-cron";
@@ -26,7 +27,6 @@ app.use(express.json({ limit: "16kb" }))
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(cookieParser())
 
-app.set('trust proxy', 1)
 
 app.use(session({
     secret: "Come along man let's build something awesome together",
@@ -35,11 +35,12 @@ app.use(session({
     proxy: true,
     name: 'plannex.sid',
     cookie: {
-      secure: true,     
+      secure: false,     
       httpOnly: false,    
-      sameSite: 'None'   
+      sameSite: 'lax'   
     }
 }));
+app.use(passport.initialize())
 app.use(passport.session())
 
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
@@ -88,7 +89,7 @@ app.get(
             console.log("Generated Token:", token);
 
             const options = {
-                httpOnly: false,
+                httpOnly: true,
                 secure: true,
                 sameSite: 'None',
                 maxAge: 1000 * 60 * 60 * 24,
