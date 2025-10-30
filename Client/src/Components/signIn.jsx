@@ -86,12 +86,8 @@ const SignIn = () => {
 
   return (
   <div className="min-h-screen relative flex items-center justify-center p-4">
-      {/* Dynamic Gradient Background */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-100 to-white animate-gradient-slow-pulse"></div>
-
-      {/* Login Panel Container */}
       <div className="relative z-10 w-full max-w-sm shadow-2xl rounded-3xl overflow-hidden">
-        {/* Login Form Panel */}
         <div className="p-8 flex flex-col justify-center bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg">
           <div className="text-center  mb-8">
             <img
@@ -110,7 +106,7 @@ const SignIn = () => {
             </Text>
           </div>
 
-          <Link to={`http://localhost:8000/auth/google`}> 
+          <Link to={`${import.meta.env.VITE_BACKEND_URL}auth/google`}> 
           <Button
             type="primary"
             icon={<GoogleOutlined />}
