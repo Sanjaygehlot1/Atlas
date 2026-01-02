@@ -3,23 +3,13 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const subjectSchema = new Schema({
-    name: {
+    class: {
         type: String,
         required: true,
-        unique: true
-    },
-    code: {
-        type: String,
-        required: true,
-        unique: true
     },
     department: {
         type: String,
         required: true
-    },
-    credits: {
-        type: Number,
-        default: 3
     },
     semester: {
         type: Number,
@@ -29,8 +19,16 @@ const subjectSchema = new Schema({
         type: Number,
         required: true
     },
-    description: {
-        type: String
+    subjectName: {
+        type: String,
+        required: true
+    },
+    faculty: {
+        type: String,
+    },
+    shortForm: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 

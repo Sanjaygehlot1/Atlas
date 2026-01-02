@@ -5,6 +5,7 @@ export const fetchTimeTable = async (className) => {
     if (className === undefined || className === null || className === '') {
         throw new Error('Class name is required');
     }
+    console.log(className)
     try {
     const res = await AxiosInstance.post('/timetable/get-timetable', { className });
 

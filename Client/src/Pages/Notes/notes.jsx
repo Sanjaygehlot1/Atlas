@@ -23,7 +23,9 @@ const MyNote = () => {
         setLoadingSubjects(true);
         try {
           const className = getUserClass(user);
+          console.log(className)
           const userSubjects = await fetchUserSubjects(className);
+          console.log(userSubjects)
           setSubjects(userSubjects);
         } catch (error) {
           console.error('Error fetching subjects:', error);

@@ -13,10 +13,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-
-
-
-
 const getnotes = AsyncHandler(async (req, res) => {
     const { subjectId } = req.body; // Back to req.body for POST
 

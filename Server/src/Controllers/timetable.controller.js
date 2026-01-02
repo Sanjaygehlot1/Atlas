@@ -144,8 +144,10 @@ export async function getTimetableForAClass(req, res) {
 
     const date = new Date();
     const formattedDate = date.toLocaleDateString('en-GB')
+    console.log(formattedDate)
+    console.log(className)
 
-    const timetable = await Lecture.find({ class: className, date : formattedDate })
+    const timetable = await Timetable.find({ class: className, day : "Friday" })
       .populate('year', 'name')
       .populate('timeSlot', 'label startTime endTime')
       .populate('faculty', 'name code')
@@ -179,14 +181,13 @@ export const getScheduleForATeacher = AsyncHandler(async (req, res) => {
     const date = new Date();
 
     const schedule = await Lecture.find({
-      faculty: { $in: ["68860d94cf2bfd5edb077454"] },
+      faculty: { $in: ["68860d94cf2bfd5edb077454"], date: "2/01/2026" },
 
-    }).populate('year', 'name')
-      .populate('timeSlot', 'label')
+    }).populate('timeSlot', 'label')
       .populate('faculty', 'name code')
       .populate('rooms', 'roomCode floor')
-      .select(' -createdAt -updatedAt -entryHash').exec();
-
+      .select(' -createdAt -updatedAt -entryHash').limit(10).exec();
+      
 
     if (!schedule) {
       return res.status(401).json(new ApiError(401, `Error fetching schedule.`));

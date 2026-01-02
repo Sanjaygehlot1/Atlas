@@ -106,7 +106,7 @@ const SignIn = () => {
             </Text>
           </div>
 
-          <Link to={`${import.meta.env.VITE_BACKEND_URL}auth/google`}> 
+          <Link to={`${import.meta.env.VITE_BACKEND_URL}/auth/google`}> 
           <Button
             type="primary"
             icon={<GoogleOutlined />}

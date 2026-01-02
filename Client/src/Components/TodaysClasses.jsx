@@ -1,164 +1,145 @@
 import React, { useState, useEffect } from 'react';
 import { App, Button, Dropdown, Menu, Tag, Space, Typography, Card as Card1 } from 'antd';
 import { UserSwitchOutlined, SwapOutlined } from '@ant-design/icons';
-import { Clock, CheckCircle, XCircle, MoreVertical, Megaphone } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, MoreVertical, Megaphone, ClipboardClock } from 'lucide-react';
 import ChangeVenueModal from './changeVenue.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getTeacherSchedule, updateLectureStatus } from '../Slices/Timetable';
 import { useNavigate } from 'react-router';
-
+import { classes } from './data.js';
 const { Text } = Typography;
 
 const TodaysClasses = () => {
     const { user } = useAuth();
     const { message } = App.useApp();
-    const [todaysClasses, setTodaysClasses] = useState([]);
-    const [fetched, setfetched] = useState(false)
+    const [todaysClasses, setTodaysClasses] = useState([]); // Start with empty array
+    const [fetched, setfetched] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedLecture, setSelectedLecture] = useState(null);
     const navigate = useNavigate();
 
-    console.log(todaysClasses)
-
     useEffect(() => {
-        if (!fetched) {
-            const getTodaysClasses = async () => {
-                try {
-                    const response = await getTeacherSchedule();
-                    setTodaysClasses(response);
-                    setfetched(true);
-                } catch (error) {
-                    message.error("Failed to load today's classes.");
-                }
+        const fetchClasses = async () => {
+            try {
+                // In production, use: const response = await getTeacherSchedule();
+                // For now using your imported demo data
+                setTodaysClasses(classes); 
+                setfetched(true);
+            } catch (error) {
+                message.error("Failed to load today's classes.");
             }
-            getTodaysClasses();
-        }
-    }, [user, fetched])
+        };
+        if (!fetched) fetchClasses();
+    }, [fetched]);
 
-    const handleOpenChangeVenueModal = (lecture) => {
-        setSelectedLecture(lecture);
-        setIsModalOpen(true);
+    const updateStatus = async (lectureId, status, updatedRoom = null) => {
+        try {
+            // await updateLectureStatus(lectureId, status, updatedRoom);
+            
+            // Sync local state
+            setTodaysClasses(prev => prev.map(item => {
+                if (item._id === lectureId) {
+                    return { 
+                        ...item, 
+                        status: status, 
+                        updatedRoom: updatedRoom || item.updatedRoom 
+                    };
+                }
+                return item;
+            }));
+            
+            message.success("Schedule updated successfully");
+        } catch (error) {
+            message.error("Action failed. Please try again.");
+        }
     };
 
-    const markStudentAttendance = (lecture) => {
-        navigate('/teacher/mark-attendance')
-    }
-
-    const updateStatus = async (lecture, status, updatedRoom) => {
-        try {
-            if (lecture && status) {
-                await updateLectureStatus(lecture._id, status, updatedRoom);
-                const res = await getTeacherSchedule(user?._id);
-                setTodaysClasses(res);
-               
-            }
-        } catch (error) {
-            message.error("Failed to cancel the lecture.");
+    const handleVenueSubmit = (updatedRoom) => {
+        if (selectedLecture) {
+            updateStatus(selectedLecture._id, "Venue_Changed", updatedRoom);
+            setIsModalOpen(false);
+            setSelectedLecture(null);
         }
-    }
+    };
 
     return (
-        <Card1
-            title={<Space><Clock size={18} /> Today's Classes</Space>}
-            variant="outlined"
-            style={{ width: '100%' }}
-        >
+        <Card1 title={<Space><Clock size={18} /> Today's Classes</Space>} style={{ width: '100%' }}>
             <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                {todaysClasses.length == 0 ? "No lectures scheduled for today." :
-                    todaysClasses.map((item, index) => {
-                        const handleVenueSubmit = (updatedRoom) => {
-                            setIsModalOpen(false);
-                            updateStatus(selectedLecture, "Venue_Changed", updatedRoom);
-                        };
-                        return (
-                            <Card1
-                                key={index}
-                                size="small"
-                                variant="outlined"
-                                hoverable
-                                style={{ width: '100%' }}
-                                bodyStyle={{ padding: '16px' }}
-                            >
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
-                                    <div className="text-left w-full md:w-auto">
-                                        <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                                            <strong className="text-base md:text-lg text-gray-800">
-                                                {item.subjectName}
-                                            </strong>
-                                            <span className="text-sm md:text-base text-gray-600">|</span>
-                                            <span className="bg-gray-200 text-gray-800 text-sm md:text-base px-2 py-1 rounded-xl">
-                                                {item.class}
-                                            </span>
-                                        </div>
-                                        <div className="mt-1">
-                                            {item.status === 'Cancelled' ? (
-                                                <Tag className="inline-flex items-center gap-1" icon={<span ><XCircle size={15} /></span>} color="error">
-                                                    Cancelled
-                                                </Tag>
-                                            ) : item.status === 'Teacher_Absent' ? (
-                                                <Tag icon={<UserSwitchOutlined />} color="warning">Teacher Absent</Tag>
-                                            ) : item.status === 'Rescheduled' ? (
-                                                <Tag className="inline-flex items-center gap-1" icon={<Clock size={14} />} color="cyan">Rescheduled</Tag>
-                                            ) : item.status === 'Replaced' ? (
-                                                <Tag icon={<SwapOutlined />} color="purple">Replaced</Tag>
-                                            ) : (item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) ? (
-                                                <Tag icon={<SwapOutlined />} color="purple">Venue Changed</Tag>
-                                            ) : (
-                                                <Tag className="inline-flex items-center gap-1" icon={<CheckCircle size={14} />} color="success">Scheduled</Tag>
-                                            )}
-                                        </div>
-                                        <span className="text-sm text-gray-500 block">
-                                            {item.timeSlot.label}
-                                        </span>
-                                        {item.lectureType === 'Theory' ? 'Room :' : 'Lab :'}
-                                        <span style={{ textDecoration: (item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) ? 'line-through' : 'none', marginRight: item.status === 'Venue_Changed' ? '8px' : '0' }}>
-                                            {`  ${item.rooms[0]?.roomCode || 'N/A'}`}
-                                        </span>
-                                        {(item.status === 'Venue_Changed' && item.updatedRoom !== item.rooms[0]?.roomCode) && <Text strong>{item.updatedRoom}</Text>}
+                {todaysClasses.length === 0 ? "No lectures scheduled for today." :
+                    todaysClasses.map((item) => (
+                        <Card1 key={item._id} size="small" hoverable>
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
+                                <div className="text-left">
+                                    <Space>
+                                        <strong className="text-lg">{item.subjectName}</strong>
+                                        <Tag color="blue">{item.class}</Tag>
+                                    </Space>
+                                    
+                                    {/* Dynamic Status Tag Rendering */}
+                                    <div className="my-2">
+                                        {item.status === 'Cancelled' ? (
+                                            <Tag icon={<XCircle size={14} />} color="error">Cancelled</Tag>
+                                        ) : item.status === 'Venue_Changed' ? (
+                                            <Tag icon={<SwapOutlined />} color="purple">Venue Changed</Tag>
+                                        ) : (
+                                            <Tag icon={<CheckCircle size={14} />} color="success">Scheduled</Tag>
+                                        )}
                                     </div>
-                                    <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                                        <Button type="primary" onClick={() => markStudentAttendance(item)}>
-                                            Mark Attendance
-                                        </Button>
-                                        <Dropdown
-                                            overlay={
-                                                <Menu>
-                                                    <Menu.Item key="1" onClick={() => updateStatus(item, item.status === 'Cancelled' ? 'Scheduled' : 'Cancelled')}>
-                                                        {item.status === 'Cancelled' ? "Live Lecture" : "Cancel Lecture"}
-                                                    </Menu.Item>
-                                                    <Menu.Item key="2" onClick={() => handleOpenChangeVenueModal(item)}>
-                                                        Change Venue
-                                                    </Menu.Item>
-                                                </Menu>
-                                            }
-                                            trigger={['click']}
-                                        >
-                                            <Button icon={<MoreVertical size={16} />}>Manage</Button>
-                                        </Dropdown>
-                                        <ChangeVenueModal
-                                            open={isModalOpen}
-                                            onCancel={() => {
-                                                setIsModalOpen(false);
-                                                setSelectedLecture(null);
-                                            }}
-                                            onSubmit={handleVenueSubmit}
-                                            currentRoom={selectedLecture?.rooms[0]?.roomCode}
-                                        />
-                                        <Button
-                                            icon={<Megaphone size={16} />}
-                                            onClick={() => console.log('Notify', item)}
-                                        >
-                                            Notify Students
-                                        </Button>
-                                    </div>
+
+                                    <Text type="secondary" block>{item.timeSlot.label}</Text>
+                                    
+                                    <Space>
+                                        <Text>{item.lectureType === 'Theory' ? 'Room:' : 'Lab:'}</Text>
+                                        <Text delete={item.status === 'Venue_Changed'}>
+                                            {item.rooms[0]?.roomCode}
+                                        </Text>
+                                        {item.status === 'Venue_Changed' && <Text strong color="green">{item.updatedRoom}</Text>}
+                                    </Space>
                                 </div>
-                            </Card1>
-                        )
-                    })
+
+                                <div className="flex gap-2">
+                                    <Button type="primary" onClick={() => navigate('/teacher/mark-attendance')}>
+                                        Attendance
+                                    </Button>
+                                    
+                                    <Dropdown
+                                        menu={{
+                                            items: [
+                                                {
+                                                    key: '1',
+                                                    label: item.status === 'Cancelled' ? "Restore Lecture" : "Cancel Lecture",
+                                                    danger: item.status !== 'Cancelled',
+                                                    onClick: () => updateStatus(item._id, item.status === 'Cancelled' ? 'Scheduled' : 'Cancelled')
+                                                },
+                                                {
+                                                    key: '2',
+                                                    label: "Change Venue",
+                                                    onClick: () => {
+                                                        setSelectedLecture(item);
+                                                        setIsModalOpen(true);
+                                                    }
+                                                }
+                                            ]
+                                        }}
+                                    >
+                                        <Button icon={<MoreVertical size={16} />}>Manage</Button>
+                                    </Dropdown>
+                                </div>
+                            </div>
+                        </Card1>
+                    ))
                 }
-            </Space >
-        </Card1 >
-    )
-}
+            </Space>
+
+            <ChangeVenueModal
+                open={isModalOpen}
+                onCancel={() => setIsModalOpen(false)}
+                onSubmit={handleVenueSubmit}
+                currentRoom={selectedLecture?.rooms[0]?.roomCode}
+            />
+        </Card1>
+    );
+};
+
 
 export default TodaysClasses;

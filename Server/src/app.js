@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { userRouter } from './Routes/user.routes.js';
 import noteRoutes from './Routes/notes.routes.js';
 import User from './Models/students.model.js';
+import subjectRoutes from '../src/Routes/subjects.route.js'
 import session from "express-session"
 import '../src/auth/googleAuth.js'
 import passport from 'passport';
@@ -13,9 +14,14 @@ import jwt from 'jsonwebtoken'
 import cron from "node-cron";
 import { Timetable } from "./Models/timetable.model.js";
 import { Lecture } from "./Models/currentLecture.model.js";
-
+import dotenv from 'dotenv';
 
 const app = express();
+dotenv.config(
+    {
+        path: './.env'
+    }
+);
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
@@ -43,11 +49,10 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
+app.get("/api/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }
 ))
 
-app.get(
-    "/auth/google/callback",
+app.get("/api/auth/google/callback",
     passport.authenticate("google", { failureRedirect: "/login" }),
     async (req, res) => {
         try {
@@ -109,7 +114,7 @@ app.get(
 );
 
 
-app.get("/profile", (req, res) => {
+app.get("/api/profile", (req, res) => {
     res.json(req.user || null)
 })
 
@@ -154,6 +159,7 @@ cron.schedule("0 0 * * *", async () => {
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/users', userRouter);
 app.use('/api/notes', noteRoutes);
+app.use('/api/subjects', subjectRoutes);
 
 
 app.use(express.static("public"))

@@ -4,20 +4,20 @@ import { AxiosInstance } from '../Axios/AxiosInstance.js';
 
 export const fetchUserSubjects = async (className) => {
   try {
-    const response = await AxiosInstance.get('/subjects/get-student-subjects');
+    const response = await AxiosInstance.post('/subjects/get-student-subjects', { className });
     
-    // Extract unique subjects from timetable data
-    const timetableData = response.data.data || response.data;
+    const timetableData = response.data.data;
+
     const subjectsMap = new Map();
     
     timetableData.forEach(entry => {
       if (entry.subjectName && entry.subjectName !== 'Break' && entry.subjectName !== 'LUNCH') {
         subjectsMap.set(entry.subjectName, {
-          id: entry.subjectName, // Use subject name as ID for now
+          id: entry.shortForm, // Use subject name as ID for now
           name: entry.subjectName,
-          faculty: entry.faculty?.map(f => f.name || f).join(', ') || 'Unknown Faculty',
+          faculty: entry.faculty || "Faculty Name not Known",
           color: getSubjectColor(entry.subjectName),
-          icon: getSubjectIcon(entry.subjectName)
+          icon: getSubjectIcon(entry.subjectName),
         });
       }
     });
